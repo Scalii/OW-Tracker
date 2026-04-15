@@ -6,24 +6,24 @@
   <title>Overwatch Tracker</title>
   <style>
     :root {
-      --bg: #07111f;
-      --bg-2: #0d1930;
-      --panel: rgba(10, 18, 33, 0.78);
-      --panel-strong: rgba(12, 22, 38, 0.92);
-      --panel-soft: rgba(255, 255, 255, 0.04);
-      --line: rgba(255, 255, 255, 0.08);
-      --text: #f6f9ff;
-      --muted: #97a9c5;
-      --soft: #ced8e9;
-      --accent: #ff9e1b;
-      --accent-2: #47c7ff;
-      --green: #28c76f;
-      --red: #ff5b6e;
-      --gold: #ffd56a;
-      --shadow: 0 25px 60px rgba(0, 0, 0, 0.36);
-      --radius-xl: 28px;
-      --radius-lg: 20px;
+      --bg: #060b14;
+      --bg2: #0b1322;
+      --panel: rgba(12, 18, 30, 0.72);
+      --panel-strong: rgba(12, 18, 30, 0.9);
+      --line: rgba(255,255,255,0.08);
+      --line-strong: rgba(255,255,255,0.12);
+      --text: #f7fbff;
+      --muted: #93a6c7;
+      --accent: #ff9d1c;
+      --accent2: #4ecbff;
+      --green: #2ed47a;
+      --red: #ff6478;
+      --gold: #ffd166;
+      --shadow: 0 30px 80px rgba(0,0,0,0.45);
+      --radius-xl: 30px;
+      --radius-lg: 22px;
       --radius-md: 16px;
+      --max: 1420px;
     }
 
     * { box-sizing: border-box; }
@@ -33,9 +33,9 @@
       font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: var(--text);
       background:
-        radial-gradient(circle at top left, rgba(71, 199, 255, 0.16), transparent 24%),
-        radial-gradient(circle at top right, rgba(255, 158, 27, 0.14), transparent 28%),
-        linear-gradient(180deg, #0c1730 0%, #08111f 44%, #060c16 100%);
+        radial-gradient(circle at top left, rgba(78,203,255,0.14), transparent 25%),
+        radial-gradient(circle at top right, rgba(255,157,28,0.13), transparent 30%),
+        linear-gradient(180deg, #0a1323 0%, #060b14 45%, #04070d 100%);
       overflow-x: hidden;
     }
 
@@ -44,16 +44,16 @@
       position: fixed;
       inset: 0;
       background-image:
-        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-      background-size: 34px 34px;
+        linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+      background-size: 38px 38px;
       pointer-events: none;
-      mask-image: linear-gradient(180deg, rgba(0,0,0,0.55), transparent 90%);
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.65), transparent 92%);
     }
 
     .app {
-      width: min(1380px, calc(100% - 28px));
-      margin: 20px auto 40px;
+      width: min(var(--max), calc(100% - 28px));
+      margin: 20px auto 42px;
       display: grid;
       gap: 18px;
       position: relative;
@@ -61,40 +61,40 @@
     }
 
     .glass {
-      background: linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.025));
+      background: linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.022));
       border: 1px solid var(--line);
       border-radius: var(--radius-xl);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
       box-shadow: var(--shadow);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
     }
 
     .hero {
-      padding: 24px;
+      padding: 28px;
       display: grid;
       gap: 22px;
-      overflow: hidden;
       position: relative;
+      overflow: hidden;
     }
 
     .hero::after {
       content: "";
       position: absolute;
-      width: 320px;
-      height: 320px;
+      width: 360px;
+      height: 360px;
       right: -120px;
       top: -120px;
-      background: radial-gradient(circle, rgba(255,158,27,0.26), transparent 68%);
+      background: radial-gradient(circle, rgba(255,157,28,0.22), transparent 70%);
       pointer-events: none;
     }
 
     .hero-top,
     .section-head,
-    .split-title {
+    .split {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      gap: 16px;
+      gap: 18px;
       flex-wrap: wrap;
     }
 
@@ -104,24 +104,26 @@
       gap: 8px;
       padding: 8px 12px;
       border-radius: 999px;
-      background: rgba(71,199,255,0.1);
-      border: 1px solid rgba(71,199,255,0.18);
-      color: #d7f6ff;
-      font-size: 0.84rem;
+      background: rgba(78,203,255,0.1);
+      border: 1px solid rgba(78,203,255,0.18);
+      color: #d9f7ff;
+      font-size: 0.82rem;
+      letter-spacing: 0.03em;
       margin-bottom: 14px;
+      text-transform: uppercase;
     }
 
     h1, h2, h3, p { margin: 0; }
 
     h1 {
-      font-size: clamp(2.2rem, 4.4vw, 4rem);
-      line-height: 0.94;
-      letter-spacing: -0.05em;
-      max-width: 12ch;
+      font-size: clamp(2.4rem, 5vw, 4.4rem);
+      letter-spacing: -0.06em;
+      line-height: 0.92;
+      max-width: 11ch;
     }
 
     h2 {
-      font-size: clamp(1.25rem, 2vw, 1.85rem);
+      font-size: clamp(1.3rem, 2vw, 1.9rem);
       letter-spacing: -0.03em;
     }
 
@@ -131,10 +133,10 @@
     }
 
     .lead {
-      margin-top: 12px;
-      max-width: 70ch;
-      line-height: 1.65;
+      max-width: 72ch;
       color: var(--muted);
+      line-height: 1.7;
+      margin-top: 12px;
       font-size: 1rem;
     }
 
@@ -144,29 +146,29 @@
 
     .small { font-size: 0.9rem; }
 
-    .auth-card,
-    .panel,
+    .auth-box,
     .stat-card,
     .rank-card,
     .daily-card,
     .hero-row,
     .match-row,
-    .info-chip {
-      background: var(--panel-soft);
+    .profile-chip,
+    .private-panel {
+      background: rgba(255,255,255,0.04);
       border: 1px solid var(--line);
       border-radius: var(--radius-lg);
     }
 
-    .auth-card {
-      min-width: min(100%, 440px);
+    .auth-box {
+      min-width: min(100%, 390px);
       padding: 16px;
       display: grid;
       gap: 12px;
     }
 
     .auth-row,
-    .toolbar,
     .tabs,
+    .toolbar,
     .button-row {
       display: flex;
       gap: 10px;
@@ -176,46 +178,44 @@
 
     .summary-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 14px;
     }
 
     .stat-card {
       padding: 18px;
-      min-height: 118px;
+      min-height: 120px;
       display: grid;
       align-content: start;
     }
 
-    .value {
-      font-size: clamp(1.65rem, 3vw, 2.45rem);
-      font-weight: 800;
-      letter-spacing: -0.04em;
-      margin-top: 2px;
-    }
-
-    .value.win { color: #8ef2ae; }
-    .value.loss { color: #ff9ba6; }
-    .value.rate { color: #86dcff; }
-
     .label {
       display: inline-block;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--muted);
       font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
       margin-bottom: 10px;
     }
 
+    .value {
+      font-size: clamp(1.7rem, 3vw, 2.6rem);
+      font-weight: 800;
+      letter-spacing: -0.05em;
+    }
+
+    .value.win { color: #95f3ba; }
+    .value.loss { color: #ffacb7; }
+    .value.rate { color: #8be0ff; }
+
     .tabs button.active {
-      background: linear-gradient(135deg, rgba(255,158,27,0.2), rgba(71,199,255,0.14));
-      border-color: rgba(255,255,255,0.16);
-      color: var(--text);
+      background: linear-gradient(135deg, rgba(255,157,28,0.22), rgba(78,203,255,0.16));
+      border-color: var(--line-strong);
     }
 
     .layout-main {
       display: grid;
-      grid-template-columns: 1.18fr 0.82fr;
+      grid-template-columns: 1.15fr 0.85fr;
       gap: 18px;
     }
 
@@ -233,7 +233,7 @@
     }
 
     .section-card {
-      padding: 20px;
+      padding: 22px;
       display: grid;
       gap: 18px;
     }
@@ -241,7 +241,7 @@
     .rank-grid,
     .daily-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
       gap: 12px;
     }
 
@@ -262,9 +262,15 @@
     .notice {
       padding: 12px 14px;
       border-radius: 16px;
-      border: 1px solid rgba(71,199,255,0.18);
-      background: rgba(71,199,255,0.1);
-      color: #d7f5ff;
+      border: 1px solid rgba(78,203,255,0.18);
+      background: rgba(78,203,255,0.1);
+      color: #d9f7ff;
+    }
+
+    .private-panel {
+      padding: 18px;
+      display: grid;
+      gap: 16px;
     }
 
     .form-grid {
@@ -273,10 +279,7 @@
       gap: 12px;
     }
 
-    button,
-    input,
-    select,
-    textarea {
+    button, input, select, textarea {
       font: inherit;
       border-radius: 14px;
       border: 1px solid var(--line);
@@ -288,17 +291,10 @@
       padding: 12px 16px;
       font-weight: 700;
       cursor: pointer;
-      transition: transform 0.14s ease, opacity 0.14s ease, background 0.14s ease;
+      transition: transform 0.14s ease, background 0.14s ease, opacity 0.14s ease;
     }
 
     button:hover { transform: translateY(-1px); }
-    button:disabled,
-    input:disabled,
-    select:disabled,
-    textarea:disabled {
-      opacity: 0.56;
-      cursor: not-allowed;
-    }
 
     button.primary {
       background: linear-gradient(135deg, var(--accent), #ffb74d);
@@ -307,18 +303,24 @@
     }
 
     button.secondary {
-      background: rgba(71,199,255,0.1);
-      border-color: rgba(71,199,255,0.18);
+      background: rgba(78,203,255,0.1);
+      border-color: rgba(78,203,255,0.18);
     }
 
     button.danger {
-      background: rgba(255,91,110,0.12);
-      color: #ffc3cb;
+      background: rgba(255,100,120,0.12);
+      color: #ffc4cc;
     }
 
-    input,
-    select,
-    textarea {
+    button:disabled,
+    input:disabled,
+    select:disabled,
+    textarea:disabled {
+      opacity: 0.56;
+      cursor: not-allowed;
+    }
+
+    input, select, textarea {
       width: 100%;
       padding: 13px 14px;
       background: rgba(5, 10, 19, 0.44);
@@ -363,12 +365,12 @@
     }
 
     .tag.win {
-      background: rgba(40,199,111,0.16);
-      color: #a8f5c8;
+      background: rgba(46,212,122,0.16);
+      color: #b2f6ce;
     }
 
     .tag.loss {
-      background: rgba(255,91,110,0.14);
+      background: rgba(255,100,120,0.14);
       color: #ffc0c8;
     }
 
@@ -383,6 +385,7 @@
 
     a { color: #bde9ff; }
   </style>
+
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
@@ -579,34 +582,35 @@
       const rankMap = Object.fromEntries(ranks.map((r) => [r.role, r]))
       const profileLink = profile?.blizzard_profile_url
         ? `<a href="${profile.blizzard_profile_url}" target="_blank" rel="noreferrer">Open official Blizzard profile</a>`
-        : '<span class="small">Official Blizzard profile link will be added later.</span>'
+        : ''
 
       document.body.innerHTML = `
         <div class="app">
           <section class="hero glass">
             <div class="hero-top">
               <div>
-                <div class="eyebrow">Competitive dashboard</div>
-                <h1>Track every session like it actually matters.</h1>
-                <p class="lead">A polished Overwatch tracker for Scalii and Koi with login-protected editing, daily hero-by-role logs, synced rank cards, and a public read-only view.</p>
+                <div class="eyebrow">Premium tracker</div>
+                <h1>Showcase the grind. Track the climb.</h1>
+                <p class="lead">A premium Overwatch profile hub for Scalii and Koi with public stat showcases and private edit tools only when the correct player logs in.</p>
               </div>
-              <div class="auth-card">
-                ${authUser ? `
-                  <div class="notice">Logged in as <strong>${authUser.email}</strong></div>
-                  <div class="button-row">
-                    <button id="logoutBtn">Logout</button>
-                  </div>
-                ` : `
-                  <div>
-                    <div class="label">Login</div>
-                    <div class="small">Use username <strong>scalii</strong> or <strong>koi</strong>.</div>
-                  </div>
-                  <form id="loginForm" class="auth-row">
-                    <input id="loginUsername" placeholder="Username" />
-                    <input id="loginPassword" type="password" placeholder="Password" />
-                    <button class="primary" type="submit">Enter tracker</button>
-                  </form>
-                `}
+
+              <div class="auth-box">
+                ${
+                  authUser
+                    ? `
+                      <div class="notice">Logged in as <strong>${authUser.email}</strong></div>
+                      <div class="button-row">
+                        <button id="logoutBtn">Logout</button>
+                      </div>
+                    `
+                    : `
+                      <form id="loginForm" class="auth-row">
+                        <input id="loginUsername" aria-label="Username" />
+                        <input id="loginPassword" type="password" aria-label="Password" />
+                        <button class="primary" type="submit">Login</button>
+                      </form>
+                    `
+                }
               </div>
             </div>
 
@@ -615,12 +619,12 @@
             </div>
 
             <div class="summary-grid">
-              <div class="stat-card"><div class="label">Total Wins</div><div class="value win">${totals.wins}</div><div class="small">Across all logged matches</div></div>
-              <div class="stat-card"><div class="label">Total Losses</div><div class="value loss">${totals.losses}</div><div class="small">Across all logged matches</div></div>
-              <div class="stat-card"><div class="label">Games Played</div><div class="value">${totals.total}</div><div class="small">Lifetime tracked games</div></div>
-              <div class="stat-card"><div class="label">Win Rate</div><div class="value rate">${totals.rate}</div><div class="small">Overall performance</div></div>
+              <div class="stat-card"><div class="label">Total Wins</div><div class="value win">${totals.wins}</div><div class="small">Tracked across all sessions</div></div>
+              <div class="stat-card"><div class="label">Total Losses</div><div class="value loss">${totals.losses}</div><div class="small">Tracked across all sessions</div></div>
+              <div class="stat-card"><div class="label">Games Played</div><div class="value">${totals.total}</div><div class="small">Lifetime tracked matches</div></div>
+              <div class="stat-card"><div class="label">Win Rate</div><div class="value rate">${totals.rate}</div><div class="small">Overall profile performance</div></div>
               <div class="stat-card"><div class="label">Today's Games</div><div class="value">${today.total}</div><div class="small">Current daily session</div></div>
-              <div class="stat-card"><div class="label">Today's Win Rate</div><div class="value rate">${today.rate}</div><div class="small">How today is going</div></div>
+              <div class="stat-card"><div class="label">Today's Win Rate</div><div class="value rate">${today.rate}</div><div class="small">Live session snapshot</div></div>
             </div>
           </section>
 
@@ -630,17 +634,21 @@
                 <div>
                   <h2>${profile?.display_name || selectedProfileSlug}</h2>
                   <p class="section-sub">${profile?.battletag || ''}</p>
-                  <div style="margin-top:8px">${profileLink}</div>
+                  ${profileLink ? `<div style="margin-top:8px">${profileLink}</div>` : ''}
                 </div>
-                <div class="notice">${canEdit ? 'Edit mode enabled for this profile.' : 'Public view mode. Login as this player to edit.'}</div>
+                ${
+                  canEdit
+                    ? `<div class="notice">Private tools unlocked for this profile.</div>`
+                    : `<div class="notice">Public showcase mode.</div>`
+                }
               </div>
 
-              <div class="split-title">
+              <div class="split">
                 <div>
-                  <h3>Current competitive ranks</h3>
-                  <div class="section-sub">Synced from the connected Overwatch source when available.</div>
+                  <h3>Competitive ranks</h3>
+                  <div class="section-sub">Live synced role ranks when available.</div>
                 </div>
-                <button id="syncRanksBtn" class="secondary" ${canEdit ? '' : 'disabled'}>Sync ranks</button>
+                ${canEdit ? `<button id="syncRanksBtn" class="secondary">Sync ranks</button>` : ``}
               </div>
 
               <div class="rank-grid">
@@ -653,10 +661,10 @@
                 `).join('')}
               </div>
 
-              <div class="split-title">
+              <div class="split">
                 <div>
                   <h3>Daily session breakdown</h3>
-                  <div class="section-sub">Quick view of today's role-by-role results.</div>
+                  <div class="section-sub">Role-by-role results for today's games.</div>
                 </div>
               </div>
 
@@ -671,57 +679,73 @@
               </div>
             </div>
 
-            <div class="glass section-card">
-              <div>
-                <h2>Add match</h2>
-                <p class="section-sub">Log hero, role, result, and any session notes for this profile.</p>
-              </div>
+            ${
+              canEdit
+                ? `
+                  <div class="glass section-card">
+                    <div class="private-panel">
+                      <div>
+                        <h2>Private match editor</h2>
+                        <p class="section-sub">Only visible while logged in as this player.</p>
+                      </div>
 
-              <form id="matchForm">
-                <div class="form-grid">
-                  <div>
-                    <div class="label">Date</div>
-                    <input id="playedOn" type="date" value="${todayISO()}" ${canEdit ? '' : 'disabled'} />
-                  </div>
-                  <div>
-                    <div class="label">Role</div>
-                    <select id="role" ${canEdit ? '' : 'disabled'}>
-                      ${Object.entries(ROLE_LABELS).map(([key, label]) => `<option value="${key}">${label}</option>`).join('')}
-                    </select>
-                  </div>
-                  <div>
-                    <div class="label">Hero</div>
-                    <input id="hero" list="heroes-damage" value="Genji" placeholder="Hero" ${canEdit ? '' : 'disabled'} />
-                  </div>
-                  <div>
-                    <div class="label">Result</div>
-                    <select id="result" ${canEdit ? '' : 'disabled'}>
-                      <option value="win">Win</option>
-                      <option value="loss">Loss</option>
-                    </select>
-                  </div>
-                </div>
+                      <form id="matchForm">
+                        <div class="form-grid">
+                          <div>
+                            <div class="label">Date</div>
+                            <input id="playedOn" type="date" value="${todayISO()}" />
+                          </div>
+                          <div>
+                            <div class="label">Role</div>
+                            <select id="role">
+                              ${Object.entries(ROLE_LABELS).map(([key, label]) => `<option value="${key}">${label}</option>`).join('')}
+                            </select>
+                          </div>
+                          <div>
+                            <div class="label">Hero</div>
+                            <input id="hero" list="heroes-damage" value="Genji" />
+                          </div>
+                          <div>
+                            <div class="label">Result</div>
+                            <select id="result">
+                              <option value="win">Win</option>
+                              <option value="loss">Loss</option>
+                            </select>
+                          </div>
+                        </div>
 
-                ${Object.entries(HEROES_BY_ROLE).map(([role, heroes]) => `<datalist id="heroes-${role}">${heroes.map((hero) => `<option value="${hero}"></option>`).join('')}</datalist>`).join('')}
+                        ${Object.entries(HEROES_BY_ROLE).map(([role, heroes]) => `<datalist id="heroes-${role}">${heroes.map((hero) => `<option value="${hero}"></option>`).join('')}</datalist>`).join('')}
 
-                <div style="margin-top:12px;">
-                  <div class="label">Session note</div>
-                  <textarea id="note" placeholder="Map pool, duo queue, tilt, aim, comp synergy, etc." ${canEdit ? '' : 'disabled'}></textarea>
-                </div>
+                        <div style="margin-top:12px;">
+                          <div class="label">Session note</div>
+                          <textarea id="note"></textarea>
+                        </div>
 
-                <div class="toolbar" style="margin-top:14px;">
-                  <button class="primary" type="submit" ${canEdit ? '' : 'disabled'}>Save match</button>
-                </div>
-              </form>
-            </div>
+                        <div class="toolbar" style="margin-top:14px;">
+                          <button class="primary" type="submit">Save match</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                `
+                : `
+                  <div class="glass section-card">
+                    <div>
+                      <h2>Profile spotlight</h2>
+                      <p class="section-sub">A public-facing view focused on performance and recent activity.</p>
+                    </div>
+                    <div class="empty">Login to unlock private edit tools for this profile.</div>
+                  </div>
+                `
+            }
           </section>
 
           <section class="layout-secondary">
             <div class="glass section-card">
-              <div class="split-title">
+              <div class="split">
                 <div>
                   <h2>Hero performance</h2>
-                  <div class="section-sub">See which heroes are actually delivering results.</div>
+                  <div class="section-sub">Which heroes are actually getting results.</div>
                 </div>
               </div>
               <div class="hero-list">
@@ -741,7 +765,7 @@
             </div>
 
             <div class="glass section-card">
-              <div class="split-title">
+              <div class="split">
                 <div>
                   <h2>Recent match log</h2>
                   <div class="section-sub">Latest tracked games for this profile.</div>
@@ -793,7 +817,6 @@
             <div class="glass section-card">
               <h1>Setup still needed</h1>
               <p class="lead">${error.message}</p>
-              <p class="small">Make sure the Supabase schema is installed and the publishable key is valid.</p>
             </div>
           </div>
         `

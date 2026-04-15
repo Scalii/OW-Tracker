@@ -7,21 +7,16 @@
   <style>
     :root {
       --bg: #060b14;
-      --bg2: #0b1322;
-      --panel: rgba(12, 18, 30, 0.72);
       --line: rgba(255,255,255,0.08);
       --line-strong: rgba(255,255,255,0.14);
       --text: #f7fbff;
       --muted: #93a6c7;
       --accent: #ff9d1c;
       --accent2: #4ecbff;
-      --green: #2ed47a;
-      --red: #ff6478;
       --gold: #ffd166;
       --shadow: 0 30px 80px rgba(0,0,0,0.45);
       --radius-xl: 30px;
       --radius-lg: 22px;
-      --radius-md: 16px;
       --max: 1420px;
     }
 
@@ -251,12 +246,6 @@
       align-content: start;
     }
 
-    .rank-meta {
-      color: var(--gold);
-      margin-top: 4px;
-      font-size: 0.92rem;
-    }
-
     .notice {
       padding: 12px 14px;
       border-radius: 16px;
@@ -362,6 +351,46 @@
       box-shadow: 0 0 0 4px rgba(78,203,255,0.08);
     }
 
+    .hero-checklist {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      max-height: 180px;
+      overflow: auto;
+      padding: 4px 2px 2px;
+    }
+
+    .hero-pill {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .hero-pill input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .hero-pill span {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--line);
+      color: var(--text);
+      font-size: 0.92rem;
+      transition: 0.15s ease;
+    }
+
+    .hero-pill input:checked + span {
+      background: linear-gradient(135deg, rgba(255,157,28,0.24), rgba(78,203,255,0.18));
+      border-color: var(--line-strong);
+      box-shadow: 0 0 0 3px rgba(78,203,255,0.06);
+    }
+
     .hero-list,
     .match-list {
       display: grid;
@@ -420,59 +449,23 @@
     }
 
     .rank-icon {
-      width: 22px;
-      height: 22px;
-      flex: 0 0 22px;
-      color: currentColor;
+      font-size: 1.05rem;
+      line-height: 1;
     }
 
     .rank-value-text {
       font-size: clamp(1.2rem, 2vw, 1.7rem);
     }
 
-    .rank-card.rank-bronze {
-      box-shadow: inset 0 0 0 1px rgba(205, 127, 50, 0.18);
-      color: #d9a46d;
-    }
-
-    .rank-card.rank-silver {
-      box-shadow: inset 0 0 0 1px rgba(192, 192, 192, 0.18);
-      color: #d9dde5;
-    }
-
-    .rank-card.rank-gold {
-      box-shadow: inset 0 0 0 1px rgba(255, 209, 102, 0.22);
-      color: #ffd56a;
-    }
-
-    .rank-card.rank-platinum {
-      box-shadow: inset 0 0 0 1px rgba(110, 215, 255, 0.22);
-      color: #7fe7ff;
-    }
-
-    .rank-card.rank-diamond {
-      box-shadow: inset 0 0 0 1px rgba(110, 170, 255, 0.24);
-      color: #7faeff;
-    }
-
-    .rank-card.rank-master {
-      box-shadow: inset 0 0 0 1px rgba(201, 111, 255, 0.24);
-      color: #ce8cff;
-    }
-
-    .rank-card.rank-grandmaster {
-      box-shadow: inset 0 0 0 1px rgba(255, 102, 153, 0.24);
-      color: #ff8cb3;
-    }
-
-    .rank-card.rank-champion {
-      box-shadow: inset 0 0 0 1px rgba(255, 200, 87, 0.28);
-      color: #ffe08a;
-    }
-
-    .rank-card.rank-unranked {
-      opacity: 0.9;
-    }
+    .rank-card.rank-bronze { box-shadow: inset 0 0 0 1px rgba(205, 127, 50, 0.18); color: #d9a46d; }
+    .rank-card.rank-silver { box-shadow: inset 0 0 0 1px rgba(192, 192, 192, 0.18); color: #d9dde5; }
+    .rank-card.rank-gold { box-shadow: inset 0 0 0 1px rgba(255, 209, 102, 0.22); color: #ffd56a; }
+    .rank-card.rank-platinum { box-shadow: inset 0 0 0 1px rgba(110, 215, 255, 0.22); color: #7fe7ff; }
+    .rank-card.rank-diamond { box-shadow: inset 0 0 0 1px rgba(110, 170, 255, 0.24); color: #7faeff; }
+    .rank-card.rank-master { box-shadow: inset 0 0 0 1px rgba(201, 111, 255, 0.24); color: #ce8cff; }
+    .rank-card.rank-grandmaster { box-shadow: inset 0 0 0 1px rgba(255, 102, 153, 0.24); color: #ff8cb3; }
+    .rank-card.rank-champion { box-shadow: inset 0 0 0 1px rgba(255, 200, 87, 0.28); color: #ffe08a; }
+    .rank-card.rank-unranked { opacity: 0.9; }
 
     .role-icon {
       width: 18px;
@@ -537,55 +530,64 @@
       return role === 'open_queue' ? ALL_HEROES : (HEROES_BY_ROLE[role] || [])
     }
 
-    function populateHeroSelect(role, currentValue = '') {
-      const heroSelect = qs('hero')
-      if (!heroSelect) return
-
+    function renderHeroChecklist(role, selectedHeroes = []) {
       const heroes = getHeroesForRole(role)
-      heroSelect.innerHTML = heroes
-        .map((hero) => `<option value="${hero}">${hero}</option>`)
-        .join('')
-
-      if (heroes.includes(currentValue)) {
-        heroSelect.value = currentValue
-      } else {
-        heroSelect.value = heroes[0] || ''
-      }
+      return `
+        <div class="hero-checklist">
+          ${heroes.map((hero) => `
+            <label class="hero-pill">
+              <input type="checkbox" name="heroMulti" value="${hero}" ${selectedHeroes.includes(hero) ? 'checked' : ''}>
+              <span>${hero}</span>
+            </label>
+          `).join('')}
+        </div>
+      `
     }
 
     function getRankInfo(record) {
       if (!record) {
         return {
           label: 'Unranked',
-          icon: '—',
+          icon: '◆',
           flairClass: 'rank-unranked'
         }
       }
 
       const raw = record.raw_data || {}
 
-      const name =
+      const possibleName =
         record.rank_label ||
         raw.rank ||
-        raw.rank_icon ||
         raw.tier_name ||
+        raw.name ||
         ''
 
-      const number =
-        raw.tier ||
+      const possibleNumber =
         raw.division_tier ||
-        raw.subdivision ||
         raw.tier_number ||
         raw.division_number ||
+        raw.subdivision ||
+        raw.tier ||
         ''
 
-      const formattedName = titleCase(name)
-      const formattedNumber = number ? ` ${number}` : ''
-      const fullLabel = formattedName ? `${formattedName}${formattedNumber}` : 'Unranked'
+      const cleanedName = String(possibleName || '')
+        .trim()
+        .replace(/https?:\/\/\S+/gi, '')
+        .replace(/[_-]/g, ' ')
+        .replace(/\b\w/g, (m) => m.toUpperCase())
+        .trim()
+
+      const cleanedNumber =
+        typeof possibleNumber === 'number' || /^\d+$/.test(String(possibleNumber))
+          ? String(possibleNumber)
+          : ''
+
+      const fullLabel = cleanedName
+        ? `${cleanedName}${cleanedNumber ? ` ${cleanedNumber}` : ''}`
+        : 'Unranked'
 
       let flairClass = 'rank-unranked'
-      let icon = '•'
-
+      let icon = '◆'
       const check = fullLabel.toLowerCase()
 
       if (check.includes('champion')) { flairClass = 'rank-champion'; icon = '✦' }
@@ -658,13 +660,22 @@
 
     function summarizeByHero(list) {
       const map = new Map()
+
       for (const match of list) {
-        const key = `${match.role}__${match.hero}`
-        if (!map.has(key)) map.set(key, { role: match.role, hero: match.hero, wins: 0, losses: 0 })
-        const row = map.get(key)
-        if (match.result === 'win') row.wins += 1
-        else row.losses += 1
+        const heroes = String(match.hero || '')
+          .split(',')
+          .map((h) => h.trim())
+          .filter(Boolean)
+
+        for (const hero of heroes) {
+          const key = `${match.role}__${hero}`
+          if (!map.has(key)) map.set(key, { role: match.role, hero, wins: 0, losses: 0 })
+          const row = map.get(key)
+          if (match.result === 'win') row.wins += 1
+          else row.losses += 1
+        }
       }
+
       return [...map.values()]
         .map((item) => ({ ...item, total: item.wins + item.losses, rate: pct(item.wins, item.wins + item.losses) }))
         .sort((a, b) => b.total - a.total || a.hero.localeCompare(b.hero))
@@ -689,17 +700,26 @@
     async function addMatch(event) {
       event.preventDefault()
       if (!canEditSelected()) return alert('You can only edit your own profile.')
+
+      const selectedHeroes = [...document.querySelectorAll('input[name="heroMulti"]:checked')]
+        .map((el) => el.value)
+
+      if (!selectedHeroes.length) {
+        return alert('Select at least one hero.')
+      }
+
       const payload = {
         profile_slug: selectedProfileSlug,
         played_on: qs('playedOn').value || todayISO(),
         role: qs('role').value,
-        hero: qs('hero').value.trim(),
+        hero: selectedHeroes.join(', '),
         result: qs('result').value,
         note: qs('note').value.trim() || null
       }
-      if (!payload.hero) return alert('Enter a hero.')
+
       const { error } = await supabase.from('matches').insert(payload)
       if (error) return alert(error.message)
+
       qs('note').value = ''
       await loadSelectedData()
       render()
@@ -718,10 +738,12 @@
       if (!canEditSelected()) return alert('You can only sync your own profile.')
       const profile = selectedProfile()
       if (!profile?.battletag_slug) return alert('No BattleTag found for this profile.')
+
       try {
         const response = await fetch(`https://overfast-api.tekrop.fr/players/${encodeURIComponent(profile.battletag_slug)}/summary`)
         if (!response.ok) throw new Error('Sync source did not respond successfully.')
         const json = await response.json()
+
         const roleMap = {
           tank: json?.competitive?.pc?.tank || null,
           damage: json?.competitive?.pc?.damage || null,
@@ -753,7 +775,13 @@
 
     function onRoleChange() {
       const role = qs('role').value
-      populateHeroSelect(role, qs('hero')?.value || '')
+      const container = qs('heroChecklistWrap')
+      if (container) {
+        container.innerHTML = `
+          <div class="label">Heroes played this round</div>
+          ${renderHeroChecklist(role)}
+        `
+      }
     }
 
     function render() {
@@ -888,12 +916,8 @@
                           <div>
                             <div class="label">Role</div>
                             <select id="role">
-                              ${Object.entries(ROLE_LABELS).map(([key, label]) => `<option value="${key}">${label}</option>`).join('')}
+                              ${Object.entries(ROLE_LABELS).map(([key, label]) => `<option value="${key}" ${key === 'damage' ? 'selected' : ''}>${label}</option>`).join('')}
                             </select>
-                          </div>
-                          <div>
-                            <div class="label">Hero</div>
-                            <select id="hero"></select>
                           </div>
                           <div>
                             <div class="label">Result</div>
@@ -901,6 +925,11 @@
                               <option value="win">Win</option>
                               <option value="loss">Loss</option>
                             </select>
+                          </div>
+
+                          <div id="heroChecklistWrap" style="grid-column: 1 / -1;">
+                            <div class="label">Heroes played this round</div>
+                            ${renderHeroChecklist('damage')}
                           </div>
                         </div>
 
@@ -978,10 +1007,6 @@
           </section>
         </div>
       `
-
-      if (canEdit) {
-        populateHeroSelect(qs('role')?.value || 'damage', 'Genji')
-      }
 
       qs('loginForm')?.addEventListener('submit', login)
       qs('logoutBtn')?.addEventListener('click', logout)

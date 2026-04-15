@@ -3,98 +3,385 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Overwatch Tracker V2</title>
+  <title>Overwatch Tracker</title>
   <style>
     :root {
-      --bg: #0b1220;
-      --panel: #121a2b;
-      --panel-2: #1a2440;
-      --text: #f3f6ff;
-      --muted: #9fb0d1;
-      --accent: #f99f1b;
-      --accent-2: #52c7ff;
-      --win: #22c55e;
-      --loss: #ef4444;
-      --border: rgba(255,255,255,0.08);
-      --shadow: 0 10px 30px rgba(0,0,0,0.35);
-      --radius: 18px;
+      --bg: #07111f;
+      --bg-2: #0d1930;
+      --panel: rgba(10, 18, 33, 0.78);
+      --panel-strong: rgba(12, 22, 38, 0.92);
+      --panel-soft: rgba(255, 255, 255, 0.04);
+      --line: rgba(255, 255, 255, 0.08);
+      --text: #f6f9ff;
+      --muted: #97a9c5;
+      --soft: #ced8e9;
+      --accent: #ff9e1b;
+      --accent-2: #47c7ff;
+      --green: #28c76f;
+      --red: #ff5b6e;
+      --gold: #ffd56a;
+      --shadow: 0 25px 60px rgba(0, 0, 0, 0.36);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 16px;
     }
+
     * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+
     body {
-      margin: 0;
-      min-height: 100vh;
       font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #1b2b4f 0%, var(--bg) 45%);
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(71, 199, 255, 0.16), transparent 24%),
+        radial-gradient(circle at top right, rgba(255, 158, 27, 0.14), transparent 28%),
+        linear-gradient(180deg, #0c1730 0%, #08111f 44%, #060c16 100%);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 34px 34px;
+      pointer-events: none;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.55), transparent 90%);
+    }
+
+    .app {
+      width: min(1380px, calc(100% - 28px));
+      margin: 20px auto 40px;
+      display: grid;
+      gap: 18px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .glass {
+      background: linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.025));
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 24px;
+      display: grid;
+      gap: 22px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 320px;
+      height: 320px;
+      right: -120px;
+      top: -120px;
+      background: radial-gradient(circle, rgba(255,158,27,0.26), transparent 68%);
+      pointer-events: none;
+    }
+
+    .hero-top,
+    .section-head,
+    .split-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(71,199,255,0.1);
+      border: 1px solid rgba(71,199,255,0.18);
+      color: #d7f6ff;
+      font-size: 0.84rem;
+      margin-bottom: 14px;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+
+    h1 {
+      font-size: clamp(2.2rem, 4.4vw, 4rem);
+      line-height: 0.94;
+      letter-spacing: -0.05em;
+      max-width: 12ch;
+    }
+
+    h2 {
+      font-size: clamp(1.25rem, 2vw, 1.85rem);
+      letter-spacing: -0.03em;
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      letter-spacing: -0.02em;
+    }
+
+    .lead {
+      margin-top: 12px;
+      max-width: 70ch;
+      line-height: 1.65;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .muted, .section-sub, .meta, .small {
+      color: var(--muted);
+    }
+
+    .small { font-size: 0.9rem; }
+
+    .auth-card,
+    .panel,
+    .stat-card,
+    .rank-card,
+    .daily-card,
+    .hero-row,
+    .match-row,
+    .info-chip {
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+    }
+
+    .auth-card {
+      min-width: min(100%, 440px);
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .auth-row,
+    .toolbar,
+    .tabs,
+    .button-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 14px;
+    }
+
+    .stat-card {
+      padding: 18px;
+      min-height: 118px;
+      display: grid;
+      align-content: start;
+    }
+
+    .value {
+      font-size: clamp(1.65rem, 3vw, 2.45rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      margin-top: 2px;
+    }
+
+    .value.win { color: #8ef2ae; }
+    .value.loss { color: #ff9ba6; }
+    .value.rate { color: #86dcff; }
+
+    .label {
+      display: inline-block;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      font-size: 0.78rem;
+      margin-bottom: 10px;
+    }
+
+    .tabs button.active {
+      background: linear-gradient(135deg, rgba(255,158,27,0.2), rgba(71,199,255,0.14));
+      border-color: rgba(255,255,255,0.16);
       color: var(--text);
     }
-    .container { width: min(1200px, calc(100% - 32px)); margin: 24px auto 48px; }
-    .card {
-      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
+
+    .layout-main {
+      display: grid;
+      grid-template-columns: 1.18fr 0.82fr;
+      gap: 18px;
+    }
+
+    .layout-secondary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    @media (max-width: 1080px) {
+      .layout-main,
+      .layout-secondary {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .section-card {
       padding: 20px;
+      display: grid;
+      gap: 18px;
     }
-    .hero { display: grid; gap: 16px; margin-bottom: 20px; }
-    .hero-top { display: flex; justify-content: space-between; gap: 16px; align-items: start; flex-wrap: wrap; }
-    .subtitle { color: var(--muted); line-height: 1.55; max-width: 75ch; }
-    .summary-grid, .rank-grid, .daily-grid, .profile-grid { display: grid; gap: 14px; }
-    .summary-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
-    .rank-grid { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
-    .profile-grid { grid-template-columns: 1.1fr .9fr; gap: 20px; }
-    .daily-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
-    @media (max-width: 960px) { .profile-grid { grid-template-columns: 1fr; } }
-    .stat, .rank-card, .mini-card, .match-row, .hero-row {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--border);
-      border-radius: 16px;
+
+    .rank-grid,
+    .daily-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+    }
+
+    .rank-card,
+    .daily-card {
       padding: 16px;
+      min-height: 122px;
+      display: grid;
+      align-content: start;
     }
-    .label { display: inline-block; font-size: .82rem; color: var(--muted); margin-bottom: 8px; }
-    .value { font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 800; letter-spacing: -0.02em; }
-    .value.win { color: var(--win); }
-    .value.loss { color: var(--loss); }
-    .value.rate { color: var(--accent-2); }
-    .toolbar, .auth-row, .player-switch { display: flex; gap: 10px; flex-wrap: wrap; }
-    button, input, select, textarea {
+
+    .rank-meta {
+      color: var(--gold);
+      margin-top: 4px;
+      font-size: 0.92rem;
+    }
+
+    .notice {
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(71,199,255,0.18);
+      background: rgba(71,199,255,0.1);
+      color: #d7f5ff;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
       font: inherit;
       border-radius: 14px;
-      border: 1px solid var(--border);
+      border: 1px solid var(--line);
     }
+
     button {
-      padding: 12px 14px;
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      padding: 12px 16px;
       font-weight: 700;
       cursor: pointer;
-      background: rgba(255,255,255,0.08);
-      color: var(--text);
+      transition: transform 0.14s ease, opacity 0.14s ease, background 0.14s ease;
     }
-    button.primary { background: var(--accent); color: #101522; border-color: transparent; }
-    button.win { background: var(--win); color: #052e16; border-color: transparent; }
-    button.loss { background: var(--loss); color: #fff; border-color: transparent; }
-    button:disabled, input:disabled, select:disabled, textarea:disabled { opacity: .55; cursor: not-allowed; }
-    input, select, textarea {
-      background: rgba(0,0,0,0.2);
-      color: var(--text);
-      padding: 12px 14px;
+
+    button:hover { transform: translateY(-1px); }
+    button:disabled,
+    input:disabled,
+    select:disabled,
+    textarea:disabled {
+      opacity: 0.56;
+      cursor: not-allowed;
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, var(--accent), #ffb74d);
+      color: #152032;
+      border-color: transparent;
+    }
+
+    button.secondary {
+      background: rgba(71,199,255,0.1);
+      border-color: rgba(71,199,255,0.18);
+    }
+
+    button.danger {
+      background: rgba(255,91,110,0.12);
+      color: #ffc3cb;
+    }
+
+    input,
+    select,
+    textarea {
       width: 100%;
+      padding: 13px 14px;
+      background: rgba(5, 10, 19, 0.44);
+      color: var(--text);
+      outline: none;
     }
-    textarea { min-height: 88px; resize: vertical; }
-    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
-    .section { margin-top: 20px; }
-    .section h2, .section h3, h1, p { margin: 0; }
-    .section-title { margin-bottom: 14px; }
-    .muted { color: var(--muted); }
-    .history { display: grid; gap: 10px; max-height: 560px; overflow: auto; }
-    .match-row { display: flex; justify-content: space-between; gap: 12px; align-items: start; }
-    .tag { padding: 6px 10px; border-radius: 999px; font-size: .82rem; font-weight: 800; }
-    .tag.win { background: rgba(34,197,94,.18); color: #86efac; }
-    .tag.loss { background: rgba(239,68,68,.18); color: #fca5a5; }
-    .hero-stats { display: grid; gap: 10px; }
-    .hero-row { display:flex; justify-content: space-between; gap: 12px; align-items: center; }
-    .empty { color: var(--muted); border: 1px dashed var(--border); padding: 20px; border-radius: 16px; text-align: center; }
-    .notice { padding: 12px 14px; border-radius: 14px; background: rgba(82,199,255,.12); border: 1px solid rgba(82,199,255,.18); color: #ccefff; }
-    a { color: #bfe5ff; }
+
+    textarea {
+      min-height: 92px;
+      resize: vertical;
+    }
+
+    .hero-list,
+    .match-list {
+      display: grid;
+      gap: 10px;
+      max-height: 620px;
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .hero-row,
+    .match-row {
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .meta {
+      font-size: 0.92rem;
+      margin-top: 4px;
+    }
+
+    .tag {
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+    }
+
+    .tag.win {
+      background: rgba(40,199,111,0.16);
+      color: #a8f5c8;
+    }
+
+    .tag.loss {
+      background: rgba(255,91,110,0.14);
+      color: #ffc0c8;
+    }
+
+    .empty {
+      padding: 24px;
+      border-radius: var(--radius-lg);
+      border: 1px dashed var(--line);
+      background: rgba(255,255,255,0.02);
+      color: var(--muted);
+      text-align: center;
+    }
+
+    a { color: #bde9ff; }
   </style>
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
@@ -123,74 +410,77 @@
     let ranks = []
     let selectedProfileSlug = 'scalii'
 
-    function qs(id){ return document.getElementById(id) }
-    function fmtPct(wins, total){ return total ? `${Math.round((wins / total) * 100)}%` : '0%' }
-    function fmtDate(value){ return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value)) }
-    function todayISO(){ return new Date().toISOString().slice(0, 10) }
+    const qs = (id) => document.getElementById(id)
+    const todayISO = () => new Date().toISOString().slice(0, 10)
+    const pct = (wins, total) => total ? `${Math.round((wins / total) * 100)}%` : '0%'
 
-    async function loadAuth(){
+    async function loadAuth() {
       const { data } = await supabase.auth.getUser()
       authUser = data.user || null
     }
 
-    async function loadProfiles(){
+    async function loadProfiles() {
       const { data, error } = await supabase.from('profiles').select('*').order('display_name')
       if (error) throw error
       profiles = data || []
     }
 
-    async function loadSelectedData(){
-      const { data: matchData, error: matchError } = await supabase
+    async function loadSelectedData() {
+      const { data: m, error: matchError } = await supabase
         .from('matches')
         .select('*')
         .eq('profile_slug', selectedProfileSlug)
         .order('played_on', { ascending: false })
         .order('created_at', { ascending: false })
-
       if (matchError) throw matchError
-      matches = matchData || []
+      matches = m || []
 
-      const { data: rankData, error: rankError } = await supabase
+      const { data: r, error: rankError } = await supabase
         .from('rank_snapshots')
         .select('*')
         .eq('profile_slug', selectedProfileSlug)
-
       if (rankError) throw rankError
-      ranks = rankData || []
+      ranks = r || []
     }
 
-    function selectedProfile(){ return profiles.find(p => p.slug === selectedProfileSlug) || null }
-    function canEditSelected(){ const profile = selectedProfile(); return !!(authUser && profile && profile.auth_user_id === authUser.id) }
-
-    function getTodayMatches(){ return matches.filter(m => m.played_on === todayISO()) }
-
-    function summarize(list){
-      const wins = list.filter(m => m.result === 'win').length
-      const losses = list.filter(m => m.result === 'loss').length
-      return { wins, losses, total: wins + losses, pct: fmtPct(wins, wins + losses) }
+    function selectedProfile() {
+      return profiles.find((p) => p.slug === selectedProfileSlug) || null
     }
 
-    function summarizeByRole(list){
-      const byRole = {}
-      Object.keys(ROLE_LABELS).forEach(role => { byRole[role] = summarize(list.filter(m => m.role === role)) })
-      return byRole
+    function canEditSelected() {
+      const profile = selectedProfile()
+      return !!(authUser && profile && profile.auth_user_id === authUser.id)
     }
 
-    function summarizeHeroes(list){
+    function summarize(list) {
+      const wins = list.filter((m) => m.result === 'win').length
+      const losses = list.filter((m) => m.result === 'loss').length
+      return { wins, losses, total: wins + losses, rate: pct(wins, wins + losses) }
+    }
+
+    function summarizeByRole(list) {
+      const out = {}
+      Object.keys(ROLE_LABELS).forEach((role) => {
+        out[role] = summarize(list.filter((m) => m.role === role))
+      })
+      return out
+    }
+
+    function summarizeByHero(list) {
       const map = new Map()
-      for (const item of list) {
-        const key = `${item.role}__${item.hero}`
-        if (!map.has(key)) map.set(key, { role: item.role, hero: item.hero, wins: 0, losses: 0 })
-        const entry = map.get(key)
-        if (item.result === 'win') entry.wins += 1
-        else entry.losses += 1
+      for (const match of list) {
+        const key = `${match.role}__${match.hero}`
+        if (!map.has(key)) map.set(key, { role: match.role, hero: match.hero, wins: 0, losses: 0 })
+        const row = map.get(key)
+        if (match.result === 'win') row.wins += 1
+        else row.losses += 1
       }
       return [...map.values()]
-        .map(x => ({ ...x, total: x.wins + x.losses, pct: fmtPct(x.wins, x.wins + x.losses) }))
+        .map((item) => ({ ...item, total: item.wins + item.losses, rate: pct(item.wins, item.wins + item.losses) }))
         .sort((a, b) => b.total - a.total || a.hero.localeCompare(b.hero))
     }
 
-    async function loginFromForm(event){
+    async function login(event) {
       event.preventDefault()
       const username = qs('loginUsername').value.trim().toLowerCase()
       const password = qs('loginPassword').value
@@ -201,12 +491,12 @@
       await boot()
     }
 
-    async function logout(){
+    async function logout() {
       await supabase.auth.signOut()
       await boot()
     }
 
-    async function addMatch(event){
+    async function addMatch(event) {
       event.preventDefault()
       if (!canEditSelected()) return alert('You can only edit your own profile.')
       const payload = {
@@ -225,17 +515,16 @@
       render()
     }
 
-    async function deleteMatch(id){
+    async function deleteMatch(id) {
       if (!canEditSelected()) return
-      const confirmed = confirm('Delete this match?')
-      if (!confirmed) return
+      if (!confirm('Delete this match?')) return
       const { error } = await supabase.from('matches').delete().eq('id', id)
       if (error) return alert(error.message)
       await loadSelectedData()
       render()
     }
 
-    async function syncRanks(){
+    async function syncRanks() {
       if (!canEditSelected()) return alert('You can only sync your own profile.')
       const profile = selectedProfile()
       if (!profile?.battletag_slug) return alert('No BattleTag found for this profile.')
@@ -249,6 +538,7 @@
           support: json?.competitive?.pc?.support || null,
           open_queue: json?.competitive?.pc?.open_queue || null
         }
+
         for (const role of Object.keys(roleMap)) {
           const value = roleMap[role]
           if (!value) continue
@@ -263,6 +553,7 @@
           }, { onConflict: 'profile_slug,role' })
           if (error) throw error
         }
+
         await loadSelectedData()
         render()
       } catch (error) {
@@ -270,148 +561,203 @@
       }
     }
 
-    function onRoleChange(){
+    function onRoleChange() {
       const role = qs('role').value
-      const heroSelect = qs('hero')
       const heroes = HEROES_BY_ROLE[role] || []
-      heroSelect.value = heroes[0] || ''
-      heroSelect.setAttribute('list', `heroes-${role}`)
+      qs('hero').setAttribute('list', `heroes-${role}`)
+      if (!heroes.includes(qs('hero').value)) qs('hero').value = heroes[0] || ''
     }
 
-    function render(){
+    function render() {
       const profile = selectedProfile()
       const canEdit = canEditSelected()
       const totals = summarize(matches)
-      const today = summarize(getTodayMatches())
-      const byRole = summarizeByRole(matches)
-      const todayByRole = summarizeByRole(getTodayMatches())
-      const heroSummary = summarizeHeroes(matches)
-      const rankMap = Object.fromEntries(ranks.map(r => [r.role, r]))
-      const battleTagLink = profile?.blizzard_profile_url ? `<a href="${profile.blizzard_profile_url}" target="_blank" rel="noreferrer">Open official Blizzard profile</a>` : '<span class="muted">Blizzard profile link not added yet.</span>'
+      const todayMatches = matches.filter((m) => m.played_on === todayISO())
+      const today = summarize(todayMatches)
+      const byRoleToday = summarizeByRole(todayMatches)
+      const byHero = summarizeByHero(matches)
+      const rankMap = Object.fromEntries(ranks.map((r) => [r.role, r]))
+      const profileLink = profile?.blizzard_profile_url
+        ? `<a href="${profile.blizzard_profile_url}" target="_blank" rel="noreferrer">Open official Blizzard profile</a>`
+        : '<span class="small">Official Blizzard profile link will be added later.</span>'
 
       document.body.innerHTML = `
-        <div class="container">
-          <section class="hero card">
+        <div class="app">
+          <section class="hero glass">
             <div class="hero-top">
               <div>
-                <h1>Overwatch Tracker V2</h1>
-                <p class="subtitle">Public visitors can view both profiles. Logged-in players can edit only their own daily hero-by-role match tracker and sync current ranks.</p>
+                <div class="eyebrow">Competitive dashboard</div>
+                <h1>Track every session like it actually matters.</h1>
+                <p class="lead">A polished Overwatch tracker for Scalii and Koi with login-protected editing, daily hero-by-role logs, synced rank cards, and a public read-only view.</p>
               </div>
-              <div class="auth-row">
-                ${authUser ? `<div class="notice">Logged in as <strong>${authUser.email}</strong></div><button id="logoutBtn">Logout</button>` : `
+              <div class="auth-card">
+                ${authUser ? `
+                  <div class="notice">Logged in as <strong>${authUser.email}</strong></div>
+                  <div class="button-row">
+                    <button id="logoutBtn">Logout</button>
+                  </div>
+                ` : `
+                  <div>
+                    <div class="label">Login</div>
+                    <div class="small">Use username <strong>scalii</strong> or <strong>koi</strong>.</div>
+                  </div>
                   <form id="loginForm" class="auth-row">
-                    <input id="loginUsername" placeholder="Username (scalii or koi)" />
+                    <input id="loginUsername" placeholder="Username" />
                     <input id="loginPassword" type="password" placeholder="Password" />
-                    <button class="primary" type="submit">Login</button>
+                    <button class="primary" type="submit">Enter tracker</button>
                   </form>
                 `}
               </div>
             </div>
-            <div class="player-switch">
-              ${profiles.map(p => `<button data-profile="${p.slug}" class="${p.slug === selectedProfileSlug ? 'primary' : ''}">${p.display_name}</button>`).join('')}
+
+            <div class="tabs">
+              ${profiles.map((p) => `<button data-profile="${p.slug}" class="${p.slug === selectedProfileSlug ? 'active' : ''}">${p.display_name}</button>`).join('')}
+            </div>
+
+            <div class="summary-grid">
+              <div class="stat-card"><div class="label">Total Wins</div><div class="value win">${totals.wins}</div><div class="small">Across all logged matches</div></div>
+              <div class="stat-card"><div class="label">Total Losses</div><div class="value loss">${totals.losses}</div><div class="small">Across all logged matches</div></div>
+              <div class="stat-card"><div class="label">Games Played</div><div class="value">${totals.total}</div><div class="small">Lifetime tracked games</div></div>
+              <div class="stat-card"><div class="label">Win Rate</div><div class="value rate">${totals.rate}</div><div class="small">Overall performance</div></div>
+              <div class="stat-card"><div class="label">Today's Games</div><div class="value">${today.total}</div><div class="small">Current daily session</div></div>
+              <div class="stat-card"><div class="label">Today's Win Rate</div><div class="value rate">${today.rate}</div><div class="small">How today is going</div></div>
             </div>
           </section>
 
-          <section class="profile-grid section">
-            <div class="card">
-              <div class="hero-top">
+          <section class="layout-main">
+            <div class="glass section-card">
+              <div class="section-head">
                 <div>
                   <h2>${profile?.display_name || selectedProfileSlug}</h2>
-                  <p class="subtitle">${profile?.battletag || ''}</p>
-                  <div style="margin-top:8px">${battleTagLink}</div>
+                  <p class="section-sub">${profile?.battletag || ''}</p>
+                  <div style="margin-top:8px">${profileLink}</div>
                 </div>
+                <div class="notice">${canEdit ? 'Edit mode enabled for this profile.' : 'Public view mode. Login as this player to edit.'}</div>
+              </div>
+
+              <div class="split-title">
                 <div>
-                  ${canEdit ? '<div class="notice">Edit mode enabled</div>' : '<div class="notice">View-only mode</div>'}
+                  <h3>Current competitive ranks</h3>
+                  <div class="section-sub">Synced from the connected Overwatch source when available.</div>
+                </div>
+                <button id="syncRanksBtn" class="secondary" ${canEdit ? '' : 'disabled'}>Sync ranks</button>
+              </div>
+
+              <div class="rank-grid">
+                ${Object.keys(ROLE_LABELS).map((role) => `
+                  <div class="rank-card">
+                    <div class="label">${ROLE_LABELS[role]}</div>
+                    <div class="value">${rankMap[role]?.rank_label || '-'}</div>
+                    <div class="rank-meta">${rankMap[role]?.division || ''}</div>
+                  </div>
+                `).join('')}
+              </div>
+
+              <div class="split-title">
+                <div>
+                  <h3>Daily session breakdown</h3>
+                  <div class="section-sub">Quick view of today's role-by-role results.</div>
                 </div>
               </div>
 
-              <div class="summary-grid section">
-                <div class="stat"><span class="label">All Wins</span><div class="value win">${totals.wins}</div></div>
-                <div class="stat"><span class="label">All Losses</span><div class="value loss">${totals.losses}</div></div>
-                <div class="stat"><span class="label">All Games</span><div class="value">${totals.total}</div></div>
-                <div class="stat"><span class="label">All Win Rate</span><div class="value rate">${totals.pct}</div></div>
-                <div class="stat"><span class="label">Today Wins</span><div class="value win">${today.wins}</div></div>
-                <div class="stat"><span class="label">Today Losses</span><div class="value loss">${today.losses}</div></div>
-                <div class="stat"><span class="label">Today Games</span><div class="value">${today.total}</div></div>
-                <div class="stat"><span class="label">Today Win Rate</span><div class="value rate">${today.pct}</div></div>
-              </div>
-
-              <div class="section">
-                <div class="hero-top">
-                  <h3 class="section-title">Current Ranks</h3>
-                  <button id="syncRanksBtn" ${canEdit ? '' : 'disabled'}>Sync Ranks</button>
-                </div>
-                <div class="rank-grid">
-                  ${Object.keys(ROLE_LABELS).map(role => `
-                    <div class="rank-card">
-                      <span class="label">${ROLE_LABELS[role]}</span>
-                      <div class="value">${rankMap[role]?.rank_label || '-'}</div>
-                      <div class="muted">${rankMap[role]?.division || ''}</div>
-                    </div>
-                  `).join('')}
-                </div>
-              </div>
-            </div>
-
-            <div class="card">
-              <h3 class="section-title">Add Daily Match</h3>
-              <form id="matchForm">
-                <div class="form-grid">
-                  <div><span class="label">Date</span><input id="playedOn" type="date" value="${todayISO()}" ${canEdit ? '' : 'disabled'} /></div>
-                  <div><span class="label">Role</span><select id="role" ${canEdit ? '' : 'disabled'}>${Object.entries(ROLE_LABELS).map(([key, label]) => `<option value="${key}">${label}</option>`).join('')}</select></div>
-                  <div><span class="label">Hero</span><input id="hero" list="heroes-damage" value="Genji" placeholder="Hero" ${canEdit ? '' : 'disabled'} /></div>
-                  <div><span class="label">Result</span><select id="result" ${canEdit ? '' : 'disabled'}><option value="win">Win</option><option value="loss">Loss</option></select></div>
-                </div>
-                ${Object.entries(HEROES_BY_ROLE).map(([role, heroes]) => `<datalist id="heroes-${role}">${heroes.map(hero => `<option value="${hero}"></option>`).join('')}</datalist>`).join('')}
-                <div class="section"><span class="label">Note</span><textarea id="note" placeholder="Optional note: map pool, duo, tilt, aim, comp, etc." ${canEdit ? '' : 'disabled'}></textarea></div>
-                <div class="toolbar section">
-                  <button class="primary" type="submit" ${canEdit ? '' : 'disabled'}>Save Match</button>
-                </div>
-              </form>
-              <div class="section daily-grid">
-                ${Object.keys(ROLE_LABELS).map(role => `
-                  <div class="mini-card">
-                    <span class="label">Today ${ROLE_LABELS[role]}</span>
-                    <div><strong>${todayByRole[role].wins}W / ${todayByRole[role].losses}L</strong></div>
-                    <div class="muted">${todayByRole[role].pct}</div>
+              <div class="daily-grid">
+                ${Object.keys(ROLE_LABELS).map((role) => `
+                  <div class="daily-card">
+                    <div class="label">${ROLE_LABELS[role]}</div>
+                    <div><strong>${byRoleToday[role].wins}W / ${byRoleToday[role].losses}L</strong></div>
+                    <div class="small">${byRoleToday[role].rate}</div>
                   </div>
                 `).join('')}
               </div>
             </div>
+
+            <div class="glass section-card">
+              <div>
+                <h2>Add match</h2>
+                <p class="section-sub">Log hero, role, result, and any session notes for this profile.</p>
+              </div>
+
+              <form id="matchForm">
+                <div class="form-grid">
+                  <div>
+                    <div class="label">Date</div>
+                    <input id="playedOn" type="date" value="${todayISO()}" ${canEdit ? '' : 'disabled'} />
+                  </div>
+                  <div>
+                    <div class="label">Role</div>
+                    <select id="role" ${canEdit ? '' : 'disabled'}>
+                      ${Object.entries(ROLE_LABELS).map(([key, label]) => `<option value="${key}">${label}</option>`).join('')}
+                    </select>
+                  </div>
+                  <div>
+                    <div class="label">Hero</div>
+                    <input id="hero" list="heroes-damage" value="Genji" placeholder="Hero" ${canEdit ? '' : 'disabled'} />
+                  </div>
+                  <div>
+                    <div class="label">Result</div>
+                    <select id="result" ${canEdit ? '' : 'disabled'}>
+                      <option value="win">Win</option>
+                      <option value="loss">Loss</option>
+                    </select>
+                  </div>
+                </div>
+
+                ${Object.entries(HEROES_BY_ROLE).map(([role, heroes]) => `<datalist id="heroes-${role}">${heroes.map((hero) => `<option value="${hero}"></option>`).join('')}</datalist>`).join('')}
+
+                <div style="margin-top:12px;">
+                  <div class="label">Session note</div>
+                  <textarea id="note" placeholder="Map pool, duo queue, tilt, aim, comp synergy, etc." ${canEdit ? '' : 'disabled'}></textarea>
+                </div>
+
+                <div class="toolbar" style="margin-top:14px;">
+                  <button class="primary" type="submit" ${canEdit ? '' : 'disabled'}>Save match</button>
+                </div>
+              </form>
+            </div>
           </section>
 
-          <section class="profile-grid section">
-            <div class="card">
-              <h3 class="section-title">Hero Performance</h3>
-              <div class="hero-stats">
-                ${heroSummary.length ? heroSummary.map(item => `
+          <section class="layout-secondary">
+            <div class="glass section-card">
+              <div class="split-title">
+                <div>
+                  <h2>Hero performance</h2>
+                  <div class="section-sub">See which heroes are actually delivering results.</div>
+                </div>
+              </div>
+              <div class="hero-list">
+                ${byHero.length ? byHero.map((item) => `
                   <div class="hero-row">
                     <div>
                       <strong>${item.hero}</strong>
-                      <div class="muted">${ROLE_LABELS[item.role]}</div>
+                      <div class="meta">${ROLE_LABELS[item.role]} • ${item.total} games</div>
                     </div>
-                    <div>
+                    <div style="text-align:right;">
                       <strong>${item.wins}W / ${item.losses}L</strong>
-                      <div class="muted">${item.pct}</div>
+                      <div class="meta">${item.rate}</div>
                     </div>
                   </div>
                 `).join('') : '<div class="empty">No hero stats yet.</div>'}
               </div>
             </div>
 
-            <div class="card">
-              <h3 class="section-title">Recent Matches</h3>
-              <div class="history">
-                ${matches.length ? matches.map(match => `
+            <div class="glass section-card">
+              <div class="split-title">
+                <div>
+                  <h2>Recent match log</h2>
+                  <div class="section-sub">Latest tracked games for this profile.</div>
+                </div>
+              </div>
+              <div class="match-list">
+                ${matches.length ? matches.map((match) => `
                   <div class="match-row">
                     <div>
                       <strong>${match.hero}</strong>
-                      <div class="muted">${ROLE_LABELS[match.role] || match.role} • ${match.played_on}</div>
-                      ${match.note ? `<div class="muted">${match.note}</div>` : ''}
+                      <div class="meta">${ROLE_LABELS[match.role] || match.role} • ${match.played_on}</div>
+                      ${match.note ? `<div class="meta">${match.note}</div>` : ''}
                     </div>
                     <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
                       <span class="tag ${match.result}">${match.result.toUpperCase()}</span>
-                      ${canEdit ? `<button data-delete="${match.id}">Delete</button>` : ''}
+                      ${canEdit ? `<button class="danger" data-delete="${match.id}">Delete</button>` : ''}
                     </div>
                   </div>
                 `).join('') : '<div class="empty">No matches logged yet.</div>'}
@@ -421,30 +767,36 @@
         </div>
       `
 
-      const loginForm = qs('loginForm')
-      if (loginForm) loginForm.addEventListener('submit', loginFromForm)
-      const logoutBtn = qs('logoutBtn')
-      if (logoutBtn) logoutBtn.addEventListener('click', logout)
-      qs('role')?.addEventListener('change', onRoleChange)
+      qs('loginForm')?.addEventListener('submit', login)
+      qs('logoutBtn')?.addEventListener('click', logout)
       qs('matchForm')?.addEventListener('submit', addMatch)
+      qs('role')?.addEventListener('change', onRoleChange)
       qs('syncRanksBtn')?.addEventListener('click', syncRanks)
-      document.querySelectorAll('[data-profile]').forEach(btn => btn.addEventListener('click', async () => {
-        selectedProfileSlug = btn.getAttribute('data-profile')
+      document.querySelectorAll('[data-profile]').forEach((button) => button.addEventListener('click', async () => {
+        selectedProfileSlug = button.getAttribute('data-profile')
         await loadSelectedData()
         render()
       }))
-      document.querySelectorAll('[data-delete]').forEach(btn => btn.addEventListener('click', () => deleteMatch(btn.getAttribute('data-delete'))))
+      document.querySelectorAll('[data-delete]').forEach((button) => button.addEventListener('click', () => deleteMatch(button.getAttribute('data-delete'))))
     }
 
-    async function boot(){
+    async function boot() {
       try {
         await loadAuth()
         await loadProfiles()
-        if (!profiles.find(p => p.slug === selectedProfileSlug) && profiles[0]) selectedProfileSlug = profiles[0].slug
+        if (!profiles.find((p) => p.slug === selectedProfileSlug) && profiles[0]) selectedProfileSlug = profiles[0].slug
         await loadSelectedData()
         render()
       } catch (error) {
-        document.body.innerHTML = `<div class="container"><div class="card"><h1>Setup needed</h1><p class="subtitle">${error.message}</p><p class="subtitle" style="margin-top:12px;">Make sure the Supabase schema has been run and the publishable key in this file has been replaced.</p></div></div>`
+        document.body.innerHTML = `
+          <div class="app">
+            <div class="glass section-card">
+              <h1>Setup still needed</h1>
+              <p class="lead">${error.message}</p>
+              <p class="small">Make sure the Supabase schema is installed and the publishable key is valid.</p>
+            </div>
+          </div>
+        `
       }
     }
 

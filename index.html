@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Overwatch Wins & Losses Tracker</title>
+  <title>Overwatch Tracker V2</title>
   <style>
     :root {
       --bg: #0b1220;
@@ -19,9 +19,7 @@
       --shadow: 0 10px 30px rgba(0,0,0,0.35);
       --radius: 18px;
     }
-
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
       min-height: 100vh;
@@ -29,527 +27,429 @@
       background: radial-gradient(circle at top, #1b2b4f 0%, var(--bg) 45%);
       color: var(--text);
     }
-
-    .container {
-      width: min(1100px, calc(100% - 32px));
-      margin: 32px auto 48px;
-    }
-
-    .hero {
-      display: grid;
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
-    .hero-card, .card {
+    .container { width: min(1200px, calc(100% - 32px)); margin: 24px auto 48px; }
+    .card {
       background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
       border: 1px solid var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       backdrop-filter: blur(10px);
+      padding: 20px;
     }
-
-    .hero-card {
-      padding: 24px;
-      display: grid;
-      gap: 16px;
-    }
-
-    h1, h2, h3, p { margin: 0; }
-
-    .subtitle {
-      color: var(--muted);
-      max-width: 70ch;
-      line-height: 1.55;
-    }
-
-    .summary-grid, .tracker-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
-    }
-
-    .stat {
-      padding: 18px;
+    .hero { display: grid; gap: 16px; margin-bottom: 20px; }
+    .hero-top { display: flex; justify-content: space-between; gap: 16px; align-items: start; flex-wrap: wrap; }
+    .subtitle { color: var(--muted); line-height: 1.55; max-width: 75ch; }
+    .summary-grid, .rank-grid, .daily-grid, .profile-grid { display: grid; gap: 14px; }
+    .summary-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+    .rank-grid { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+    .profile-grid { grid-template-columns: 1.1fr .9fr; gap: 20px; }
+    .daily-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    @media (max-width: 960px) { .profile-grid { grid-template-columns: 1fr; } }
+    .stat, .rank-card, .mini-card, .match-row, .hero-row {
       background: rgba(255,255,255,0.03);
       border: 1px solid var(--border);
       border-radius: 16px;
+      padding: 16px;
     }
-
-    .label {
-      display: inline-block;
-      font-size: 0.85rem;
-      color: var(--muted);
-      margin-bottom: 8px;
-    }
-
-    .value {
-      font-size: clamp(1.8rem, 4vw, 2.4rem);
-      font-weight: 800;
-      letter-spacing: -0.02em;
-    }
-
+    .label { display: inline-block; font-size: .82rem; color: var(--muted); margin-bottom: 8px; }
+    .value { font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 800; letter-spacing: -0.02em; }
     .value.win { color: var(--win); }
     .value.loss { color: var(--loss); }
     .value.rate { color: var(--accent-2); }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 20px;
-      margin-top: 24px;
-    }
-
-    @media (max-width: 900px) {
-      .grid-2 {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .card {
-      padding: 20px;
-    }
-
-    .section-title {
-      margin-bottom: 16px;
-      font-size: 1.1rem;
-    }
-
-    .tracker-grid {
-      margin-top: 16px;
-    }
-
-    .role-card {
-      padding: 18px;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--border);
-      display: grid;
-      gap: 14px;
-    }
-
-    .role-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .pill {
-      font-size: 0.8rem;
-      padding: 6px 10px;
-      border-radius: 999px;
-      color: var(--bg);
-      background: var(--accent);
-      font-weight: 700;
-    }
-
-    .role-stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-    }
-
-    .mini-stat {
-      background: rgba(0,0,0,0.18);
+    .toolbar, .auth-row, .player-switch { display: flex; gap: 10px; flex-wrap: wrap; }
+    button, input, select, textarea {
+      font: inherit;
       border-radius: 14px;
-      padding: 12px;
       border: 1px solid var(--border);
     }
-
-    .mini-stat strong {
-      display: block;
-      font-size: 1.25rem;
-      margin-top: 6px;
-    }
-
-    .actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
     button {
-      border: 0;
-      border-radius: 14px;
       padding: 12px 14px;
-      font-size: 0.95rem;
       font-weight: 700;
       cursor: pointer;
-      transition: transform 0.12s ease, opacity 0.12s ease;
-    }
-
-    button:hover { transform: translateY(-1px); }
-    button:active { transform: translateY(0); }
-
-    .btn-win { background: var(--win); color: #052e16; }
-    .btn-loss { background: var(--loss); color: white; }
-    .btn-secondary {
       background: rgba(255,255,255,0.08);
       color: var(--text);
-      border: 1px solid var(--border);
     }
-
-    .toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 16px;
-    }
-
-    textarea {
-      width: 100%;
-      min-height: 110px;
-      resize: vertical;
-      border-radius: 14px;
-      border: 1px solid var(--border);
+    button.primary { background: var(--accent); color: #101522; border-color: transparent; }
+    button.win { background: var(--win); color: #052e16; border-color: transparent; }
+    button.loss { background: var(--loss); color: #fff; border-color: transparent; }
+    button:disabled, input:disabled, select:disabled, textarea:disabled { opacity: .55; cursor: not-allowed; }
+    input, select, textarea {
       background: rgba(0,0,0,0.2);
       color: var(--text);
       padding: 12px 14px;
-      font: inherit;
+      width: 100%;
     }
-
-    .history {
-      display: grid;
-      gap: 10px;
-      max-height: 420px;
-      overflow: auto;
-      margin-top: 16px;
-      padding-right: 4px;
-    }
-
-    .history-item {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: center;
-      padding: 12px 14px;
-      border-radius: 14px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--border);
-    }
-
-    .history-meta {
-      color: var(--muted);
-      font-size: 0.88rem;
-      margin-top: 4px;
-    }
-
-    .tag {
-      padding: 7px 10px;
-      border-radius: 999px;
-      font-size: 0.82rem;
-      font-weight: 800;
-    }
-
-    .tag.win { background: rgba(34,197,94,0.18); color: #86efac; }
-    .tag.loss { background: rgba(239,68,68,0.18); color: #fca5a5; }
-
-    .empty {
-      color: var(--muted);
-      text-align: center;
-      padding: 24px 10px;
-      border: 1px dashed var(--border);
-      border-radius: 14px;
-      margin-top: 16px;
-    }
-
-    .footer-note {
-      margin-top: 18px;
-      color: var(--muted);
-      font-size: 0.9rem;
-      line-height: 1.5;
-    }
-
-    .hidden { display: none; }
+    textarea { min-height: 88px; resize: vertical; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+    .section { margin-top: 20px; }
+    .section h2, .section h3, h1, p { margin: 0; }
+    .section-title { margin-bottom: 14px; }
+    .muted { color: var(--muted); }
+    .history { display: grid; gap: 10px; max-height: 560px; overflow: auto; }
+    .match-row { display: flex; justify-content: space-between; gap: 12px; align-items: start; }
+    .tag { padding: 6px 10px; border-radius: 999px; font-size: .82rem; font-weight: 800; }
+    .tag.win { background: rgba(34,197,94,.18); color: #86efac; }
+    .tag.loss { background: rgba(239,68,68,.18); color: #fca5a5; }
+    .hero-stats { display: grid; gap: 10px; }
+    .hero-row { display:flex; justify-content: space-between; gap: 12px; align-items: center; }
+    .empty { color: var(--muted); border: 1px dashed var(--border); padding: 20px; border-radius: 16px; text-align: center; }
+    .notice { padding: 12px 14px; border-radius: 14px; background: rgba(82,199,255,.12); border: 1px solid rgba(82,199,255,.18); color: #ccefff; }
+    a { color: #bfe5ff; }
   </style>
-</head>
-<body>
-  <div class="container">
-    <section class="hero">
-      <div class="hero-card">
-        <div>
-          <h1>Overwatch Wins &amp; Losses Tracker</h1>
-          <p class="subtitle">Track your match results locally in your browser, broken down by role. Your stats and notes are saved automatically with localStorage, so the tracker works great as a lightweight GitHub Pages app.</p>
-        </div>
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-        <div class="summary-grid">
-          <div class="stat">
-            <span class="label">Total Wins</span>
-            <div class="value win" id="totalWins">0</div>
-          </div>
-          <div class="stat">
-            <span class="label">Total Losses</span>
-            <div class="value loss" id="totalLosses">0</div>
-          </div>
-          <div class="stat">
-            <span class="label">Games Played</span>
-            <div class="value" id="totalGames">0</div>
-          </div>
-          <div class="stat">
-            <span class="label">Win Rate</span>
-            <div class="value rate" id="winRate">0%</div>
-          </div>
-        </div>
-      </div>
-    </section>
+    const SUPABASE_URL = 'https://pgutyryolqmdokcoopto.supabase.co'
+    const SUPABASE_KEY = 'sb_publishable_LiBZuCHj__muZ1GYKsbRNg_gcWjX7oS'
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
-    <div class="grid-2">
-      <section class="card">
-        <h2 class="section-title">Role Tracker</h2>
-        <div class="tracker-grid" id="roleCards"></div>
+    const ROLE_LABELS = {
+      tank: 'Tank',
+      damage: 'Damage',
+      support: 'Support',
+      open_queue: 'Open Queue'
+    }
 
-        <div class="toolbar">
-          <button class="btn-secondary" id="exportBtn">Export Data</button>
-          <label>
-            <input type="file" id="importInput" accept="application/json" class="hidden" />
-            <button class="btn-secondary" id="importBtn" type="button">Import Data</button>
-          </label>
-          <button class="btn-secondary" id="resetBtn">Reset Everything</button>
-        </div>
+    const HEROES_BY_ROLE = {
+      tank: ['D.Va','Doomfist','Hazard','Junker Queen','Mauga','Orisa','Ramattra','Reinhardt','Roadhog','Sigma','Winston','Wrecking Ball','Zarya'],
+      damage: ['Ashe','Bastion','Cassidy','Echo','Freja','Genji','Hanzo','Junkrat','Mei','Pharah','Reaper','Sojourn','Soldier: 76','Sombra','Symmetra','Torbjörn','Tracer','Venture','Widowmaker'],
+      support: ['Ana','Baptiste','Brigitte','Illari','Juno','Kiriko','Lifeweaver','Lúcio','Mercy','Moira','Zenyatta'],
+      open_queue: ['Flexible']
+    }
 
-        <p class="footer-note">Tip: Host this repo with GitHub Pages and the tracker will stay available at a shareable URL. Imported/exported files make it easy to move your stats between devices.</p>
-      </section>
+    let authUser = null
+    let profiles = []
+    let matches = []
+    let ranks = []
+    let selectedProfileSlug = 'scalii'
 
-      <section class="card">
-        <h2 class="section-title">Match Notes</h2>
-        <textarea id="noteInput" placeholder="Optional note before logging your next match: duo queue, map pool, tilt level, hero picks, rank session, etc."></textarea>
+    function qs(id){ return document.getElementById(id) }
+    function fmtPct(wins, total){ return total ? `${Math.round((wins / total) * 100)}%` : '0%' }
+    function fmtDate(value){ return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value)) }
+    function todayISO(){ return new Date().toISOString().slice(0, 10) }
 
-        <h3 class="section-title" style="margin-top: 18px;">Recent Matches</h3>
-        <div id="history" class="history"></div>
-        <div id="emptyState" class="empty">No matches logged yet. Add a win or loss from one of the role cards.</div>
-      </section>
-    </div>
-  </div>
+    async function loadAuth(){
+      const { data } = await supabase.auth.getUser()
+      authUser = data.user || null
+    }
 
-  <script>
-    const STORAGE_KEY = 'ow_tracker_v1';
-    const roles = [
-      { id: 'tank', name: 'Tank' },
-      { id: 'damage', name: 'Damage' },
-      { id: 'support', name: 'Support' },
-      { id: 'open_queue', name: 'Open Queue' }
-    ];
+    async function loadProfiles(){
+      const { data, error } = await supabase.from('profiles').select('*').order('display_name')
+      if (error) throw error
+      profiles = data || []
+    }
 
-    const defaultState = {
-      roles: {
-        tank: { wins: 0, losses: 0 },
-        damage: { wins: 0, losses: 0 },
-        support: { wins: 0, losses: 0 },
-        open_queue: { wins: 0, losses: 0 }
-      },
-      history: []
-    };
+    async function loadSelectedData(){
+      const { data: matchData, error: matchError } = await supabase
+        .from('matches')
+        .select('*')
+        .eq('profile_slug', selectedProfileSlug)
+        .order('played_on', { ascending: false })
+        .order('created_at', { ascending: false })
 
-    function loadState() {
+      if (matchError) throw matchError
+      matches = matchData || []
+
+      const { data: rankData, error: rankError } = await supabase
+        .from('rank_snapshots')
+        .select('*')
+        .eq('profile_slug', selectedProfileSlug)
+
+      if (rankError) throw rankError
+      ranks = rankData || []
+    }
+
+    function selectedProfile(){ return profiles.find(p => p.slug === selectedProfileSlug) || null }
+    function canEditSelected(){ const profile = selectedProfile(); return !!(authUser && profile && profile.auth_user_id === authUser.id) }
+
+    function getTodayMatches(){ return matches.filter(m => m.played_on === todayISO()) }
+
+    function summarize(list){
+      const wins = list.filter(m => m.result === 'win').length
+      const losses = list.filter(m => m.result === 'loss').length
+      return { wins, losses, total: wins + losses, pct: fmtPct(wins, wins + losses) }
+    }
+
+    function summarizeByRole(list){
+      const byRole = {}
+      Object.keys(ROLE_LABELS).forEach(role => { byRole[role] = summarize(list.filter(m => m.role === role)) })
+      return byRole
+    }
+
+    function summarizeHeroes(list){
+      const map = new Map()
+      for (const item of list) {
+        const key = `${item.role}__${item.hero}`
+        if (!map.has(key)) map.set(key, { role: item.role, hero: item.hero, wins: 0, losses: 0 })
+        const entry = map.get(key)
+        if (item.result === 'win') entry.wins += 1
+        else entry.losses += 1
+      }
+      return [...map.values()]
+        .map(x => ({ ...x, total: x.wins + x.losses, pct: fmtPct(x.wins, x.wins + x.losses) }))
+        .sort((a, b) => b.total - a.total || a.hero.localeCompare(b.hero))
+    }
+
+    async function loginFromForm(event){
+      event.preventDefault()
+      const username = qs('loginUsername').value.trim().toLowerCase()
+      const password = qs('loginPassword').value
+      if (!username || !password) return alert('Enter username and password.')
+      const email = `${username}@tracker.local`
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) return alert(error.message)
+      await boot()
+    }
+
+    async function logout(){
+      await supabase.auth.signOut()
+      await boot()
+    }
+
+    async function addMatch(event){
+      event.preventDefault()
+      if (!canEditSelected()) return alert('You can only edit your own profile.')
+      const payload = {
+        profile_slug: selectedProfileSlug,
+        played_on: qs('playedOn').value || todayISO(),
+        role: qs('role').value,
+        hero: qs('hero').value.trim(),
+        result: qs('result').value,
+        note: qs('note').value.trim() || null
+      }
+      if (!payload.hero) return alert('Enter a hero.')
+      const { error } = await supabase.from('matches').insert(payload)
+      if (error) return alert(error.message)
+      qs('note').value = ''
+      await loadSelectedData()
+      render()
+    }
+
+    async function deleteMatch(id){
+      if (!canEditSelected()) return
+      const confirmed = confirm('Delete this match?')
+      if (!confirmed) return
+      const { error } = await supabase.from('matches').delete().eq('id', id)
+      if (error) return alert(error.message)
+      await loadSelectedData()
+      render()
+    }
+
+    async function syncRanks(){
+      if (!canEditSelected()) return alert('You can only sync your own profile.')
+      const profile = selectedProfile()
+      if (!profile?.battletag_slug) return alert('No BattleTag found for this profile.')
       try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return structuredClone(defaultState);
-        const parsed = JSON.parse(raw);
-        return {
-          roles: { ...structuredClone(defaultState.roles), ...(parsed.roles || {}) },
-          history: Array.isArray(parsed.history) ? parsed.history : []
-        };
-      } catch {
-        return structuredClone(defaultState);
-      }
-    }
-
-    let state = loadState();
-
-    function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }
-
-    function pct(wins, total) {
-      if (!total) return '0%';
-      return `${Math.round((wins / total) * 100)}%`;
-    }
-
-    function getTotals() {
-      return roles.reduce((acc, role) => {
-        const roleStats = state.roles[role.id];
-        acc.wins += roleStats.wins;
-        acc.losses += roleStats.losses;
-        return acc;
-      }, { wins: 0, losses: 0 });
-    }
-
-    function renderSummary() {
-      const totals = getTotals();
-      const games = totals.wins + totals.losses;
-      document.getElementById('totalWins').textContent = totals.wins;
-      document.getElementById('totalLosses').textContent = totals.losses;
-      document.getElementById('totalGames').textContent = games;
-      document.getElementById('winRate').textContent = pct(totals.wins, games);
-    }
-
-    function logMatch(roleId, result) {
-      const noteInput = document.getElementById('noteInput');
-      const note = noteInput.value.trim();
-      const entry = {
-        id: crypto.randomUUID(),
-        roleId,
-        result,
-        note,
-        createdAt: new Date().toISOString()
-      };
-
-      if (result === 'win') {
-        state.roles[roleId].wins += 1;
-      } else {
-        state.roles[roleId].losses += 1;
-      }
-
-      state.history.unshift(entry);
-      state.history = state.history.slice(0, 50);
-      noteInput.value = '';
-      saveState();
-      render();
-    }
-
-    function undoLatest(roleId) {
-      const index = state.history.findIndex(item => item.roleId === roleId);
-      if (index === -1) return;
-      const [entry] = state.history.splice(index, 1);
-      if (entry.result === 'win' && state.roles[roleId].wins > 0) state.roles[roleId].wins -= 1;
-      if (entry.result === 'loss' && state.roles[roleId].losses > 0) state.roles[roleId].losses -= 1;
-      saveState();
-      render();
-    }
-
-    function renderRoleCards() {
-      const container = document.getElementById('roleCards');
-      container.innerHTML = '';
-
-      roles.forEach(role => {
-        const stats = state.roles[role.id];
-        const total = stats.wins + stats.losses;
-        const card = document.createElement('article');
-        card.className = 'role-card';
-        card.innerHTML = `
-          <div class="role-top">
-            <div>
-              <h3>${role.name}</h3>
-            </div>
-            <span class="pill">${pct(stats.wins, total)} WR</span>
-          </div>
-          <div class="role-stats">
-            <div class="mini-stat">
-              <span class="label">Wins</span>
-              <strong>${stats.wins}</strong>
-            </div>
-            <div class="mini-stat">
-              <span class="label">Losses</span>
-              <strong>${stats.losses}</strong>
-            </div>
-            <div class="mini-stat">
-              <span class="label">Games</span>
-              <strong>${total}</strong>
-            </div>
-          </div>
-          <div class="actions">
-            <button class="btn-win">+ Win</button>
-            <button class="btn-loss">+ Loss</button>
-            <button class="btn-secondary" style="grid-column: span 2;">Undo Latest ${role.name} Match</button>
-          </div>
-        `;
-
-        const [winBtn, lossBtn, undoBtn] = card.querySelectorAll('button');
-        winBtn.addEventListener('click', () => logMatch(role.id, 'win'));
-        lossBtn.addEventListener('click', () => logMatch(role.id, 'loss'));
-        undoBtn.addEventListener('click', () => undoLatest(role.id));
-        container.appendChild(card);
-      });
-    }
-
-    function formatDate(value) {
-      const date = new Date(value);
-      return new Intl.DateTimeFormat(undefined, {
-        dateStyle: 'medium',
-        timeStyle: 'short'
-      }).format(date);
-    }
-
-    function renderHistory() {
-      const historyEl = document.getElementById('history');
-      const emptyState = document.getElementById('emptyState');
-      historyEl.innerHTML = '';
-
-      if (!state.history.length) {
-        emptyState.style.display = 'block';
-        return;
-      }
-
-      emptyState.style.display = 'none';
-      state.history.forEach(item => {
-        const roleName = roles.find(role => role.id === item.roleId)?.name || item.roleId;
-        const row = document.createElement('div');
-        row.className = 'history-item';
-        row.innerHTML = `
-          <div>
-            <strong>${roleName}</strong>
-            <div class="history-meta">${formatDate(item.createdAt)}${item.note ? ` • ${item.note}` : ''}</div>
-          </div>
-          <span class="tag ${item.result}">${item.result.toUpperCase()}</span>
-        `;
-        historyEl.appendChild(row);
-      });
-    }
-
-    function exportData() {
-      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'overwatch-tracker-data.json';
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function importData(file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        try {
-          const parsed = JSON.parse(reader.result);
-          state = {
-            roles: { ...structuredClone(defaultState.roles), ...(parsed.roles || {}) },
-            history: Array.isArray(parsed.history) ? parsed.history.slice(0, 50) : []
-          };
-          saveState();
-          render();
-          alert('Tracker data imported.');
-        } catch {
-          alert('That file could not be imported. Please use a valid tracker export JSON file.');
+        const response = await fetch(`https://overfast-api.tekrop.fr/players/${encodeURIComponent(profile.battletag_slug)}/summary`)
+        if (!response.ok) throw new Error('Sync source did not respond successfully.')
+        const json = await response.json()
+        const roleMap = {
+          tank: json?.competitive?.pc?.tank || null,
+          damage: json?.competitive?.pc?.damage || null,
+          support: json?.competitive?.pc?.support || null,
+          open_queue: json?.competitive?.pc?.open_queue || null
         }
-      };
-      reader.readAsText(file);
+        for (const role of Object.keys(roleMap)) {
+          const value = roleMap[role]
+          if (!value) continue
+          const { error } = await supabase.from('rank_snapshots').upsert({
+            profile_slug: selectedProfileSlug,
+            role,
+            rank_label: value.rank || null,
+            division: value.division || null,
+            source: 'overfast',
+            raw_data: value,
+            synced_at: new Date().toISOString()
+          }, { onConflict: 'profile_slug,role' })
+          if (error) throw error
+        }
+        await loadSelectedData()
+        render()
+      } catch (error) {
+        alert(`Rank sync failed: ${error.message}`)
+      }
     }
 
-    function resetAll() {
-      const confirmed = confirm('Reset all wins, losses, and match history?');
-      if (!confirmed) return;
-      state = structuredClone(defaultState);
-      saveState();
-      render();
+    function onRoleChange(){
+      const role = qs('role').value
+      const heroSelect = qs('hero')
+      const heroes = HEROES_BY_ROLE[role] || []
+      heroSelect.value = heroes[0] || ''
+      heroSelect.setAttribute('list', `heroes-${role}`)
     }
 
-    function render() {
-      renderSummary();
-      renderRoleCards();
-      renderHistory();
+    function render(){
+      const profile = selectedProfile()
+      const canEdit = canEditSelected()
+      const totals = summarize(matches)
+      const today = summarize(getTodayMatches())
+      const byRole = summarizeByRole(matches)
+      const todayByRole = summarizeByRole(getTodayMatches())
+      const heroSummary = summarizeHeroes(matches)
+      const rankMap = Object.fromEntries(ranks.map(r => [r.role, r]))
+      const battleTagLink = profile?.blizzard_profile_url ? `<a href="${profile.blizzard_profile_url}" target="_blank" rel="noreferrer">Open official Blizzard profile</a>` : '<span class="muted">Blizzard profile link not added yet.</span>'
+
+      document.body.innerHTML = `
+        <div class="container">
+          <section class="hero card">
+            <div class="hero-top">
+              <div>
+                <h1>Overwatch Tracker V2</h1>
+                <p class="subtitle">Public visitors can view both profiles. Logged-in players can edit only their own daily hero-by-role match tracker and sync current ranks.</p>
+              </div>
+              <div class="auth-row">
+                ${authUser ? `<div class="notice">Logged in as <strong>${authUser.email}</strong></div><button id="logoutBtn">Logout</button>` : `
+                  <form id="loginForm" class="auth-row">
+                    <input id="loginUsername" placeholder="Username (scalii or koi)" />
+                    <input id="loginPassword" type="password" placeholder="Password" />
+                    <button class="primary" type="submit">Login</button>
+                  </form>
+                `}
+              </div>
+            </div>
+            <div class="player-switch">
+              ${profiles.map(p => `<button data-profile="${p.slug}" class="${p.slug === selectedProfileSlug ? 'primary' : ''}">${p.display_name}</button>`).join('')}
+            </div>
+          </section>
+
+          <section class="profile-grid section">
+            <div class="card">
+              <div class="hero-top">
+                <div>
+                  <h2>${profile?.display_name || selectedProfileSlug}</h2>
+                  <p class="subtitle">${profile?.battletag || ''}</p>
+                  <div style="margin-top:8px">${battleTagLink}</div>
+                </div>
+                <div>
+                  ${canEdit ? '<div class="notice">Edit mode enabled</div>' : '<div class="notice">View-only mode</div>'}
+                </div>
+              </div>
+
+              <div class="summary-grid section">
+                <div class="stat"><span class="label">All Wins</span><div class="value win">${totals.wins}</div></div>
+                <div class="stat"><span class="label">All Losses</span><div class="value loss">${totals.losses}</div></div>
+                <div class="stat"><span class="label">All Games</span><div class="value">${totals.total}</div></div>
+                <div class="stat"><span class="label">All Win Rate</span><div class="value rate">${totals.pct}</div></div>
+                <div class="stat"><span class="label">Today Wins</span><div class="value win">${today.wins}</div></div>
+                <div class="stat"><span class="label">Today Losses</span><div class="value loss">${today.losses}</div></div>
+                <div class="stat"><span class="label">Today Games</span><div class="value">${today.total}</div></div>
+                <div class="stat"><span class="label">Today Win Rate</span><div class="value rate">${today.pct}</div></div>
+              </div>
+
+              <div class="section">
+                <div class="hero-top">
+                  <h3 class="section-title">Current Ranks</h3>
+                  <button id="syncRanksBtn" ${canEdit ? '' : 'disabled'}>Sync Ranks</button>
+                </div>
+                <div class="rank-grid">
+                  ${Object.keys(ROLE_LABELS).map(role => `
+                    <div class="rank-card">
+                      <span class="label">${ROLE_LABELS[role]}</span>
+                      <div class="value">${rankMap[role]?.rank_label || '-'}</div>
+                      <div class="muted">${rankMap[role]?.division || ''}</div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3 class="section-title">Add Daily Match</h3>
+              <form id="matchForm">
+                <div class="form-grid">
+                  <div><span class="label">Date</span><input id="playedOn" type="date" value="${todayISO()}" ${canEdit ? '' : 'disabled'} /></div>
+                  <div><span class="label">Role</span><select id="role" ${canEdit ? '' : 'disabled'}>${Object.entries(ROLE_LABELS).map(([key, label]) => `<option value="${key}">${label}</option>`).join('')}</select></div>
+                  <div><span class="label">Hero</span><input id="hero" list="heroes-damage" value="Genji" placeholder="Hero" ${canEdit ? '' : 'disabled'} /></div>
+                  <div><span class="label">Result</span><select id="result" ${canEdit ? '' : 'disabled'}><option value="win">Win</option><option value="loss">Loss</option></select></div>
+                </div>
+                ${Object.entries(HEROES_BY_ROLE).map(([role, heroes]) => `<datalist id="heroes-${role}">${heroes.map(hero => `<option value="${hero}"></option>`).join('')}</datalist>`).join('')}
+                <div class="section"><span class="label">Note</span><textarea id="note" placeholder="Optional note: map pool, duo, tilt, aim, comp, etc." ${canEdit ? '' : 'disabled'}></textarea></div>
+                <div class="toolbar section">
+                  <button class="primary" type="submit" ${canEdit ? '' : 'disabled'}>Save Match</button>
+                </div>
+              </form>
+              <div class="section daily-grid">
+                ${Object.keys(ROLE_LABELS).map(role => `
+                  <div class="mini-card">
+                    <span class="label">Today ${ROLE_LABELS[role]}</span>
+                    <div><strong>${todayByRole[role].wins}W / ${todayByRole[role].losses}L</strong></div>
+                    <div class="muted">${todayByRole[role].pct}</div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </section>
+
+          <section class="profile-grid section">
+            <div class="card">
+              <h3 class="section-title">Hero Performance</h3>
+              <div class="hero-stats">
+                ${heroSummary.length ? heroSummary.map(item => `
+                  <div class="hero-row">
+                    <div>
+                      <strong>${item.hero}</strong>
+                      <div class="muted">${ROLE_LABELS[item.role]}</div>
+                    </div>
+                    <div>
+                      <strong>${item.wins}W / ${item.losses}L</strong>
+                      <div class="muted">${item.pct}</div>
+                    </div>
+                  </div>
+                `).join('') : '<div class="empty">No hero stats yet.</div>'}
+              </div>
+            </div>
+
+            <div class="card">
+              <h3 class="section-title">Recent Matches</h3>
+              <div class="history">
+                ${matches.length ? matches.map(match => `
+                  <div class="match-row">
+                    <div>
+                      <strong>${match.hero}</strong>
+                      <div class="muted">${ROLE_LABELS[match.role] || match.role} • ${match.played_on}</div>
+                      ${match.note ? `<div class="muted">${match.note}</div>` : ''}
+                    </div>
+                    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
+                      <span class="tag ${match.result}">${match.result.toUpperCase()}</span>
+                      ${canEdit ? `<button data-delete="${match.id}">Delete</button>` : ''}
+                    </div>
+                  </div>
+                `).join('') : '<div class="empty">No matches logged yet.</div>'}
+              </div>
+            </div>
+          </section>
+        </div>
+      `
+
+      const loginForm = qs('loginForm')
+      if (loginForm) loginForm.addEventListener('submit', loginFromForm)
+      const logoutBtn = qs('logoutBtn')
+      if (logoutBtn) logoutBtn.addEventListener('click', logout)
+      qs('role')?.addEventListener('change', onRoleChange)
+      qs('matchForm')?.addEventListener('submit', addMatch)
+      qs('syncRanksBtn')?.addEventListener('click', syncRanks)
+      document.querySelectorAll('[data-profile]').forEach(btn => btn.addEventListener('click', async () => {
+        selectedProfileSlug = btn.getAttribute('data-profile')
+        await loadSelectedData()
+        render()
+      }))
+      document.querySelectorAll('[data-delete]').forEach(btn => btn.addEventListener('click', () => deleteMatch(btn.getAttribute('data-delete'))))
     }
 
-    document.getElementById('exportBtn').addEventListener('click', exportData);
-    document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importInput').click());
-    document.getElementById('importInput').addEventListener('change', (event) => {
-      const file = event.target.files?.[0];
-      if (file) importData(file);
-      event.target.value = '';
-    });
-    document.getElementById('resetBtn').addEventListener('click', resetAll);
+    async function boot(){
+      try {
+        await loadAuth()
+        await loadProfiles()
+        if (!profiles.find(p => p.slug === selectedProfileSlug) && profiles[0]) selectedProfileSlug = profiles[0].slug
+        await loadSelectedData()
+        render()
+      } catch (error) {
+        document.body.innerHTML = `<div class="container"><div class="card"><h1>Setup needed</h1><p class="subtitle">${error.message}</p><p class="subtitle" style="margin-top:12px;">Make sure the Supabase schema has been run and the publishable key in this file has been replaced.</p></div></div>`
+      }
+    }
 
-    render();
+    window.addEventListener('DOMContentLoaded', boot)
   </script>
-</body>
+</head>
+<body></body>
 </html>

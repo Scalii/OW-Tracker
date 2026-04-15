@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Overwatch Wins & Losses Tracker</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --panel: #121a2b;
+      --panel-2: #1a2440;
+      --text: #f3f6ff;
+      --muted: #9fb0d1;
+      --accent: #f99f1b;
+      --accent-2: #52c7ff;
+      --win: #22c55e;
+      --loss: #ef4444;
+      --border: rgba(255,255,255,0.08);
+      --shadow: 0 10px 30px rgba(0,0,0,0.35);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1b2b4f 0%, var(--bg) 45%);
+      color: var(--text);
+    }
+
+    .container {
+      width: min(1100px, calc(100% - 32px));
+      margin: 32px auto 48px;
+    }
+
+    .hero {
+      display: grid;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .hero-card, .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .hero-card {
+      padding: 24px;
+      display: grid;
+      gap: 16px;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+
+    .subtitle {
+      color: var(--muted);
+      max-width: 70ch;
+      line-height: 1.55;
+    }
+
+    .summary-grid, .tracker-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .stat {
+      padding: 18px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+
+    .label {
+      display: inline-block;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .value {
+      font-size: clamp(1.8rem, 4vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .value.win { color: var(--win); }
+    .value.loss { color: var(--loss); }
+    .value.rate { color: var(--accent-2); }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 20px;
+      margin-top: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      padding: 20px;
+    }
+
+    .section-title {
+      margin-bottom: 16px;
+      font-size: 1.1rem;
+    }
+
+    .tracker-grid {
+      margin-top: 16px;
+    }
+
+    .role-card {
+      padding: 18px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      display: grid;
+      gap: 14px;
+    }
+
+    .role-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .pill {
+      font-size: 0.8rem;
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: var(--bg);
+      background: var(--accent);
+      font-weight: 700;
+    }
+
+    .role-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .mini-stat {
+      background: rgba(0,0,0,0.18);
+      border-radius: 14px;
+      padding: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .mini-stat strong {
+      display: block;
+      font-size: 1.25rem;
+      margin-top: 6px;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.12s ease, opacity 0.12s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button:active { transform: translateY(0); }
+
+    .btn-win { background: var(--win); color: #052e16; }
+    .btn-loss { background: var(--loss); color: white; }
+    .btn-secondary {
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 110px;
+      resize: vertical;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,0.2);
+      color: var(--text);
+      padding: 12px 14px;
+      font: inherit;
+    }
+
+    .history {
+      display: grid;
+      gap: 10px;
+      max-height: 420px;
+      overflow: auto;
+      margin-top: 16px;
+      padding-right: 4px;
+    }
+
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+    }
+
+    .history-meta {
+      color: var(--muted);
+      font-size: 0.88rem;
+      margin-top: 4px;
+    }
+
+    .tag {
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+
+    .tag.win { background: rgba(34,197,94,0.18); color: #86efac; }
+    .tag.loss { background: rgba(239,68,68,0.18); color: #fca5a5; }
+
+    .empty {
+      color: var(--muted);
+      text-align: center;
+      padding: 24px 10px;
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+      margin-top: 16px;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <div class="hero-card">
+        <div>
+          <h1>Overwatch Wins &amp; Losses Tracker</h1>
+          <p class="subtitle">Track your match results locally in your browser, broken down by role. Your stats and notes are saved automatically with localStorage, so the tracker works great as a lightweight GitHub Pages app.</p>
+        </div>
+
+        <div class="summary-grid">
+          <div class="stat">
+            <span class="label">Total Wins</span>
+            <div class="value win" id="totalWins">0</div>
+          </div>
+          <div class="stat">
+            <span class="label">Total Losses</span>
+            <div class="value loss" id="totalLosses">0</div>
+          </div>
+          <div class="stat">
+            <span class="label">Games Played</span>
+            <div class="value" id="totalGames">0</div>
+          </div>
+          <div class="stat">
+            <span class="label">Win Rate</span>
+            <div class="value rate" id="winRate">0%</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="grid-2">
+      <section class="card">
+        <h2 class="section-title">Role Tracker</h2>
+        <div class="tracker-grid" id="roleCards"></div>
+
+        <div class="toolbar">
+          <button class="btn-secondary" id="exportBtn">Export Data</button>
+          <label>
+            <input type="file" id="importInput" accept="application/json" class="hidden" />
+            <button class="btn-secondary" id="importBtn" type="button">Import Data</button>
+          </label>
+          <button class="btn-secondary" id="resetBtn">Reset Everything</button>
+        </div>
+
+        <p class="footer-note">Tip: Host this repo with GitHub Pages and the tracker will stay available at a shareable URL. Imported/exported files make it easy to move your stats between devices.</p>
+      </section>
+
+      <section class="card">
+        <h2 class="section-title">Match Notes</h2>
+        <textarea id="noteInput" placeholder="Optional note before logging your next match: duo queue, map pool, tilt level, hero picks, rank session, etc."></textarea>
+
+        <h3 class="section-title" style="margin-top: 18px;">Recent Matches</h3>
+        <div id="history" class="history"></div>
+        <div id="emptyState" class="empty">No matches logged yet. Add a win or loss from one of the role cards.</div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'ow_tracker_v1';
+    const roles = [
+      { id: 'tank', name: 'Tank' },
+      { id: 'damage', name: 'Damage' },
+      { id: 'support', name: 'Support' },
+      { id: 'open_queue', name: 'Open Queue' }
+    ];
+
+    const defaultState = {
+      roles: {
+        tank: { wins: 0, losses: 0 },
+        damage: { wins: 0, losses: 0 },
+        support: { wins: 0, losses: 0 },
+        open_queue: { wins: 0, losses: 0 }
+      },
+      history: []
+    };
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return structuredClone(defaultState);
+        const parsed = JSON.parse(raw);
+        return {
+          roles: { ...structuredClone(defaultState.roles), ...(parsed.roles || {}) },
+          history: Array.isArray(parsed.history) ? parsed.history : []
+        };
+      } catch {
+        return structuredClone(defaultState);
+      }
+    }
+
+    let state = loadState();
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function pct(wins, total) {
+      if (!total) return '0%';
+      return `${Math.round((wins / total) * 100)}%`;
+    }
+
+    function getTotals() {
+      return roles.reduce((acc, role) => {
+        const roleStats = state.roles[role.id];
+        acc.wins += roleStats.wins;
+        acc.losses += roleStats.losses;
+        return acc;
+      }, { wins: 0, losses: 0 });
+    }
+
+    function renderSummary() {
+      const totals = getTotals();
+      const games = totals.wins + totals.losses;
+      document.getElementById('totalWins').textContent = totals.wins;
+      document.getElementById('totalLosses').textContent = totals.losses;
+      document.getElementById('totalGames').textContent = games;
+      document.getElementById('winRate').textContent = pct(totals.wins, games);
+    }
+
+    function logMatch(roleId, result) {
+      const noteInput = document.getElementById('noteInput');
+      const note = noteInput.value.trim();
+      const entry = {
+        id: crypto.randomUUID(),
+        roleId,
+        result,
+        note,
+        createdAt: new Date().toISOString()
+      };
+
+      if (result === 'win') {
+        state.roles[roleId].wins += 1;
+      } else {
+        state.roles[roleId].losses += 1;
+      }
+
+      state.history.unshift(entry);
+      state.history = state.history.slice(0, 50);
+      noteInput.value = '';
+      saveState();
+      render();
+    }
+
+    function undoLatest(roleId) {
+      const index = state.history.findIndex(item => item.roleId === roleId);
+      if (index === -1) return;
+      const [entry] = state.history.splice(index, 1);
+      if (entry.result === 'win' && state.roles[roleId].wins > 0) state.roles[roleId].wins -= 1;
+      if (entry.result === 'loss' && state.roles[roleId].losses > 0) state.roles[roleId].losses -= 1;
+      saveState();
+      render();
+    }
+
+    function renderRoleCards() {
+      const container = document.getElementById('roleCards');
+      container.innerHTML = '';
+
+      roles.forEach(role => {
+        const stats = state.roles[role.id];
+        const total = stats.wins + stats.losses;
+        const card = document.createElement('article');
+        card.className = 'role-card';
+        card.innerHTML = `
+          <div class="role-top">
+            <div>
+              <h3>${role.name}</h3>
+            </div>
+            <span class="pill">${pct(stats.wins, total)} WR</span>
+          </div>
+          <div class="role-stats">
+            <div class="mini-stat">
+              <span class="label">Wins</span>
+              <strong>${stats.wins}</strong>
+            </div>
+            <div class="mini-stat">
+              <span class="label">Losses</span>
+              <strong>${stats.losses}</strong>
+            </div>
+            <div class="mini-stat">
+              <span class="label">Games</span>
+              <strong>${total}</strong>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn-win">+ Win</button>
+            <button class="btn-loss">+ Loss</button>
+            <button class="btn-secondary" style="grid-column: span 2;">Undo Latest ${role.name} Match</button>
+          </div>
+        `;
+
+        const [winBtn, lossBtn, undoBtn] = card.querySelectorAll('button');
+        winBtn.addEventListener('click', () => logMatch(role.id, 'win'));
+        lossBtn.addEventListener('click', () => logMatch(role.id, 'loss'));
+        undoBtn.addEventListener('click', () => undoLatest(role.id));
+        container.appendChild(card);
+      });
+    }
+
+    function formatDate(value) {
+      const date = new Date(value);
+      return new Intl.DateTimeFormat(undefined, {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      }).format(date);
+    }
+
+    function renderHistory() {
+      const historyEl = document.getElementById('history');
+      const emptyState = document.getElementById('emptyState');
+      historyEl.innerHTML = '';
+
+      if (!state.history.length) {
+        emptyState.style.display = 'block';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+      state.history.forEach(item => {
+        const roleName = roles.find(role => role.id === item.roleId)?.name || item.roleId;
+        const row = document.createElement('div');
+        row.className = 'history-item';
+        row.innerHTML = `
+          <div>
+            <strong>${roleName}</strong>
+            <div class="history-meta">${formatDate(item.createdAt)}${item.note ? ` • ${item.note}` : ''}</div>
+          </div>
+          <span class="tag ${item.result}">${item.result.toUpperCase()}</span>
+        `;
+        historyEl.appendChild(row);
+      });
+    }
+
+    function exportData() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'overwatch-tracker-data.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importData(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(reader.result);
+          state = {
+            roles: { ...structuredClone(defaultState.roles), ...(parsed.roles || {}) },
+            history: Array.isArray(parsed.history) ? parsed.history.slice(0, 50) : []
+          };
+          saveState();
+          render();
+          alert('Tracker data imported.');
+        } catch {
+          alert('That file could not be imported. Please use a valid tracker export JSON file.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetAll() {
+      const confirmed = confirm('Reset all wins, losses, and match history?');
+      if (!confirmed) return;
+      state = structuredClone(defaultState);
+      saveState();
+      render();
+    }
+
+    function render() {
+      renderSummary();
+      renderRoleCards();
+      renderHistory();
+    }
+
+    document.getElementById('exportBtn').addEventListener('click', exportData);
+    document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importInput').click());
+    document.getElementById('importInput').addEventListener('change', (event) => {
+      const file = event.target.files?.[0];
+      if (file) importData(file);
+      event.target.value = '';
+    });
+    document.getElementById('resetBtn').addEventListener('click', resetAll);
+
+    render();
+  </script>
+</body>
+</html>

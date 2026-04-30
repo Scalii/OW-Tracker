@@ -563,14 +563,17 @@ h3{font-size:1.05rem}
 
 a{color:#caf0ff}
 
-/* Date field: visible centered arrow, native calendar remains clickable */
+
+
+
+/* Date field: clean native calendar icon */
 .date-control{
   position:relative;
   width:100%;
 }
 
 .date-control input[type="date"]{
-  padding-right:58px;
+  padding-right:48px;
   color-scheme:dark;
   cursor:pointer;
 }
@@ -584,21 +587,9 @@ a{color:#caf0ff}
   height:22px;
   cursor:pointer;
   opacity:1;
-  filter:invert(1) brightness(1.35);
+  filter:invert(1) brightness(1.65) contrast(1.15);
 }
 
-.date-control:after{
-  content:"⌄";
-  position:absolute;
-  right:42px;
-  top:50%;
-  transform:translateY(-56%);
-  color:#dff8ff;
-  pointer-events:none;
-  font-size:1.05rem;
-  line-height:1;
-  opacity:.92;
-}
 
 @media(max-width:1100px){
   .hero-grid,.main,.bottom{grid-template-columns:1fr}
@@ -1280,23 +1271,22 @@ function bind(){
       heroChecklist(qs('role').value);
   });
 
-  const dateWrap = document.querySelector('.date-control');
+
   const dateInput = qs('playedOn');
+  const dateButton = qs('dateOpenBtn');
   const openDatePicker = () => {
     if(!dateInput) return;
-    try{
-      if(typeof dateInput.showPicker === 'function'){
-        dateInput.showPicker();
-      }else{
-        dateInput.focus();
-        dateInput.click();
-      }
-    }catch(e){
+    if(typeof dateInput.showPicker === 'function'){
+      dateInput.showPicker();
+    }else{
       dateInput.focus();
       dateInput.click();
     }
   };
-  dateWrap?.addEventListener('click', openDatePicker);
+  dateButton?.addEventListener('click', openDatePicker);
+  dateInput?.addEventListener('click', () => {
+    if(typeof dateInput.showPicker === 'function') dateInput.showPicker();
+  });
 
   document.querySelectorAll('[data-delete]').forEach(b=>{
     b.onclick = () => removeEntry(b.dataset.delete);

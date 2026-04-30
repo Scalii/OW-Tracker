@@ -38,7 +38,7 @@ body:before{
   background-image:
     linear-gradient(rgba(255,255,255,.024) 1px,transparent 1px),
     linear-gradient(90deg,rgba(255,255,255,.024) 1px,transparent 1px);
-  background-size:44px 44px;
+  background-size:72px 72px;
   pointer-events:none;
   mask-image:linear-gradient(#000,transparent 88%);
 }
@@ -55,9 +55,9 @@ body:before{
 .surface{
   background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.028));
   border:1px solid var(--line);
-  box-shadow:var(--shadow);
+  box-shadow:0 18px 48px rgba(0,0,0,.34);
   border-radius:28px;
-  backdrop-filter:blur(18px);
+  backdrop-filter:blur(8px);
 }
 
 .top{
@@ -697,6 +697,30 @@ a{color:#caf0ff}
   min-width:0;
 }
 
+
+
+/* Performance polish */
+.surface,
+.stat,
+.rank,
+.daily,
+.profile,
+.editor,
+.entry,
+.mini,
+.panel{
+  contain:layout paint;
+}
+
+@media (prefers-reduced-motion: reduce){
+  *,
+  *:before,
+  *:after{
+    animation:none !important;
+    transition:none !important;
+    scroll-behavior:auto !important;
+  }
+}
 
 @media(max-width:1100px){
   .hero-grid,.main,.bottom{grid-template-columns:1fr}
@@ -1416,10 +1440,15 @@ function buildDatePicker(){
     event.stopPropagation();
   });
 
-  document.addEventListener('click',()=>{
-    if(!popover.classList.contains('open')) return;
-    popover.classList.remove('open');
-  });
+  if(!window.__owTrackerDateOutsideBound){
+    window.__owTrackerDateOutsideBound = true;
+    document.addEventListener('click',(event)=>{
+      const activePopover = document.querySelector('.date-popover.open');
+      if(!activePopover) return;
+      if(event.target.closest('.date-control')) return;
+      activePopover.classList.remove('open');
+    });
+  }
 }
 
 
@@ -1559,8 +1588,6 @@ function timeout(p,ms,label){
 }
 
 async function loadData(){
-  render();
-
   if(!client){
     notice = 'Connecting to database...';
     render();

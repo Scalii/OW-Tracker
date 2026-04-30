@@ -566,28 +566,131 @@ a{color:#caf0ff}
 
 
 
-/* Date field: clean native calendar icon */
+/* Custom dark date picker: avoids browser white/glassy native overlay */
 .date-control{
   position:relative;
   width:100%;
 }
 
-.date-control input[type="date"]{
-  padding-right:48px;
-  color-scheme:dark;
+.date-display{
+  width:100%;
+  height:48px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  background:#0a111f;
+  border:1px solid var(--line);
+  color:var(--text);
+  padding:13px 14px;
+  border-radius:15px;
   cursor:pointer;
+  text-align:left;
 }
 
-.date-control input[type="date"]::-webkit-calendar-picker-indicator{
+.date-display:hover{
+  background:#0d1626;
+  border-color:rgba(98,216,255,.28);
+}
+
+.date-display:focus-visible{
+  outline:2px solid rgba(98,216,255,.35);
+  outline-offset:2px;
+}
+
+.date-display .calendar-mark{
+  opacity:.95;
+  color:#fff;
+  filter:drop-shadow(0 0 8px rgba(255,255,255,.18));
+}
+
+.date-popover{
   position:absolute;
-  right:14px;
-  top:50%;
-  transform:translateY(-50%);
-  width:22px;
-  height:22px;
+  z-index:30;
+  top:calc(100% + 10px);
+  left:0;
+  width:292px;
+  padding:14px;
+  border-radius:20px;
+  border:1px solid rgba(255,255,255,.16);
+  background:#101827;
+  box-shadow:0 24px 70px rgba(0,0,0,.55);
+  display:none;
+}
+
+.date-popover.open{
+  display:block;
+}
+
+.date-popover-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:12px;
+}
+
+.date-popover-title{
+  font-weight:900;
+}
+
+.date-popover-head button{
+  min-width:38px;
+  padding:8px 10px;
+  border-radius:12px;
+}
+
+.date-weekdays,
+.date-grid{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:6px;
+}
+
+.date-weekdays{
+  margin-bottom:6px;
+  color:var(--muted);
+  font-size:.76rem;
+  font-weight:900;
+  text-align:center;
+}
+
+.date-day{
+  height:34px;
+  display:grid;
+  place-items:center;
+  border-radius:10px;
+  border:1px solid transparent;
+  background:transparent;
+  color:var(--text);
   cursor:pointer;
-  opacity:1;
-  filter:invert(1) brightness(1.65) contrast(1.15);
+  font-weight:800;
+}
+
+.date-day:hover{
+  background:rgba(98,216,255,.14);
+  border-color:rgba(98,216,255,.24);
+}
+
+.date-day.muted-day{
+  color:rgba(157,176,207,.45);
+}
+
+.date-day.selected-day{
+  background:linear-gradient(135deg,#ff9d1c,#ffc36a);
+  color:#101827;
+}
+
+.date-actions{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  margin-top:12px;
+}
+
+.date-actions button{
+  padding:8px 10px;
+  min-width:0;
 }
 
 
@@ -664,7 +767,13 @@ let profiles = [
 ];
 
 const root = document.getElementById('root');
-const todayISO = () => new Date().toISOString().slice(0,10);
+const localISO = (date) => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2,'0');
+  const d = String(date.getDate()).padStart(2,'0');
+  return `${y}-${m}-${d}`;
+};
+const todayISO = () => localISO(new Date());
 const pct = (w,t) => t ? Math.round(w/t*100)+'%' : '0%';
 const qs = id => document.getElementById(id);
 
@@ -1187,6 +1296,125 @@ function profilePage(){
   `);
 }
 
+
+function formatDateDisplay(iso){
+  if(!iso) return '';
+  const parts = iso.split('-');
+  if(parts.length !== 3) return iso;
+  return `${parts[2]}.${parts[1]}.${parts[0]}`;
+}
+
+function monthTitle(year,monthIndex){
+  return new Date(year,monthIndex,1).toLocaleDateString('en-US',{month:'long',year:'numeric'});
+}
+
+function buildDatePicker(){
+  const input = qs('playedOn');
+  const display = qs('dateDisplay');
+  const textEl = qs('dateDisplayText');
+  const popover = qs('datePopover');
+  if(!input || !display || !textEl || !popover) return;
+
+  let visibleDate = input.value ? new Date(input.value + 'T00:00:00') : new Date();
+
+  const syncDisplay = () => {
+    textEl.textContent = formatDateDisplay(input.value);
+  };
+
+  const renderCalendar = () => {
+    const year = visibleDate.getFullYear();
+    const month = visibleDate.getMonth();
+    const selected = input.value;
+    const first = new Date(year,month,1);
+    const startDay = first.getDay();
+    const daysInMonth = new Date(year,month + 1,0).getDate();
+    const daysInPrev = new Date(year,month,0).getDate();
+
+    let cells = '';
+
+    for(let i=0;i<42;i++){
+      const dayNumber = i - startDay + 1;
+      let cellDate;
+      let muted = false;
+
+      if(dayNumber < 1){
+        cellDate = new Date(year,month - 1,daysInPrev + dayNumber);
+        muted = true;
+      }else if(dayNumber > daysInMonth){
+        cellDate = new Date(year,month + 1,dayNumber - daysInMonth);
+        muted = true;
+      }else{
+        cellDate = new Date(year,month,dayNumber);
+      }
+
+      const iso = localISO(cellDate);
+      const label = cellDate.getDate();
+      cells += `<button type="button" class="date-day ${muted ? 'muted-day' : ''} ${iso === selected ? 'selected-day' : ''}" data-date="${iso}">${label}</button>`;
+    }
+
+    popover.innerHTML = `
+      <div class="date-popover-head">
+        <button type="button" data-month-prev aria-label="Previous month">‹</button>
+        <div class="date-popover-title">${monthTitle(year,month)}</div>
+        <button type="button" data-month-next aria-label="Next month">›</button>
+      </div>
+      <div class="date-weekdays">
+        <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+      </div>
+      <div class="date-grid">${cells}</div>
+      <div class="date-actions">
+        <button type="button" data-date-today>Today</button>
+        <button type="button" data-date-close>Close</button>
+      </div>
+    `;
+
+    popover.querySelector('[data-month-prev]')?.addEventListener('click',()=>{
+      visibleDate = new Date(year,month - 1,1);
+      renderCalendar();
+    });
+
+    popover.querySelector('[data-month-next]')?.addEventListener('click',()=>{
+      visibleDate = new Date(year,month + 1,1);
+      renderCalendar();
+    });
+
+    popover.querySelector('[data-date-today]')?.addEventListener('click',()=>{
+      input.value = todayISO();
+      visibleDate = new Date(input.value + 'T00:00:00');
+      syncDisplay();
+      renderCalendar();
+    });
+
+    popover.querySelector('[data-date-close]')?.addEventListener('click',()=>{
+      popover.classList.remove('open');
+    });
+
+    popover.querySelectorAll('[data-date]').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        input.value = btn.dataset.date;
+        visibleDate = new Date(input.value + 'T00:00:00');
+        syncDisplay();
+        popover.classList.remove('open');
+      });
+    });
+  };
+
+  syncDisplay();
+  renderCalendar();
+
+  display.addEventListener('click',()=>{
+    popover.classList.toggle('open');
+    renderCalendar();
+  });
+
+  document.addEventListener('click',(event)=>{
+    if(!popover.classList.contains('open')) return;
+    if(event.target.closest('.date-control')) return;
+    popover.classList.remove('open');
+  });
+}
+
+
 function editor(){
   return `
     <div class="section surface">
@@ -1201,7 +1429,12 @@ function editor(){
             <div>
               <div class="label">Date</div>
               <div class="date-control">
-                <input id="playedOn" type="date" value="${todayISO()}">
+                <input id="playedOn" type="hidden" value="${todayISO()}">
+                <button type="button" class="date-display" id="dateDisplay">
+                  <span id="dateDisplayText">${formatDateDisplay(todayISO())}</span>
+                  <span class="calendar-mark">▣</span>
+                </button>
+                <div class="date-popover" id="datePopover"></div>
               </div>
             </div>
 
@@ -1271,22 +1504,7 @@ function bind(){
       heroChecklist(qs('role').value);
   });
 
-
-  const dateInput = qs('playedOn');
-  const dateButton = qs('dateOpenBtn');
-  const openDatePicker = () => {
-    if(!dateInput) return;
-    if(typeof dateInput.showPicker === 'function'){
-      dateInput.showPicker();
-    }else{
-      dateInput.focus();
-      dateInput.click();
-    }
-  };
-  dateButton?.addEventListener('click', openDatePicker);
-  dateInput?.addEventListener('click', () => {
-    if(typeof dateInput.showPicker === 'function') dateInput.showPicker();
-  });
+  buildDatePicker();
 
   document.querySelectorAll('[data-delete]').forEach(b=>{
     b.onclick = () => removeEntry(b.dataset.delete);

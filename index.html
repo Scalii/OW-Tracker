@@ -609,8 +609,8 @@ a{color:#caf0ff}
   z-index:30;
   top:calc(100% + 10px);
   left:0;
-  width:292px;
-  padding:14px;
+  width:min(330px, calc(100vw - 34px));
+  padding:16px;
   border-radius:20px;
   border:1px solid rgba(255,255,255,.16);
   background:#101827;
@@ -643,8 +643,8 @@ a{color:#caf0ff}
 .date-weekdays,
 .date-grid{
   display:grid;
-  grid-template-columns:repeat(7,1fr);
-  gap:6px;
+  grid-template-columns:repeat(7,minmax(0,1fr));
+  gap:4px;
 }
 
 .date-weekdays{
@@ -656,6 +656,8 @@ a{color:#caf0ff}
 }
 
 .date-day{
+  width:100%;
+  min-width:0;
   height:34px;
   display:grid;
   place-items:center;
@@ -665,6 +667,8 @@ a{color:#caf0ff}
   color:var(--text);
   cursor:pointer;
   font-weight:800;
+  padding:0;
+  line-height:1;
 }
 
 .date-day:hover{
@@ -1402,14 +1406,18 @@ function buildDatePicker(){
   syncDisplay();
   renderCalendar();
 
-  display.addEventListener('click',()=>{
+  display.addEventListener('click',(event)=>{
+    event.stopPropagation();
     popover.classList.toggle('open');
     renderCalendar();
   });
 
-  document.addEventListener('click',(event)=>{
+  popover.addEventListener('click',(event)=>{
+    event.stopPropagation();
+  });
+
+  document.addEventListener('click',()=>{
     if(!popover.classList.contains('open')) return;
-    if(event.target.closest('.date-control')) return;
     popover.classList.remove('open');
   });
 }

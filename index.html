@@ -4,58 +4,1503 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Overwatch Ranked Tracker</title>
+
 <style>
-:root{--bg:#050915;--panel:#0d1423;--panel2:#111a2b;--line:rgba(255,255,255,.1);--line2:rgba(255,255,255,.18);--text:#f7fbff;--muted:#9bb0d0;--accent:#ff9d1c;--blue:#59d6ff;--green:#8ef0b4;--red:#ff9aa8;--shadow:0 24px 70px rgba(0,0,0,.48);--r:28px}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 20% 0%,rgba(89,214,255,.16),transparent 30%),radial-gradient(circle at 88% 10%,rgba(255,157,28,.16),transparent 28%),linear-gradient(180deg,#091225 0%,#050915 50%,#03060d 100%)}body:before{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:42px 42px;mask-image:linear-gradient(180deg,#000,transparent 88%);pointer-events:none}.app{width:min(1420px,calc(100% - 28px));margin:18px auto 46px;display:grid;gap:18px;position:relative;z-index:1}.surface{background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.03));border:1px solid var(--line);box-shadow:var(--shadow);backdrop-filter:blur(22px);border-radius:var(--r)}.topbar{position:sticky;top:12px;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 14px}.nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.brand{font-weight:950;letter-spacing:-.05em;font-size:1.05rem}.brand span{color:var(--accent)}button,input,select,textarea{font:inherit}button{border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--text);padding:11px 15px;border-radius:15px;font-weight:800;cursor:pointer;transition:.16s ease}button:hover{transform:translateY(-1px);border-color:var(--line2);background:rgba(255,255,255,.09)}button.active{background:linear-gradient(135deg,rgba(255,157,28,.24),rgba(89,214,255,.18));border-color:var(--line2)}button.primary{background:linear-gradient(135deg,#ff9d1c,#ffc36a);border-color:transparent;color:#121a29}button.secondary{background:rgba(89,214,255,.12);border-color:rgba(89,214,255,.24)}button.danger{background:rgba(255,90,110,.12);color:#ffc3cb}input,select,textarea{width:100%;border:1px solid var(--line);border-radius:15px;background:#0a111f;color:var(--text);padding:13px 14px;outline:none}select option{background:#101827;color:#fff}textarea{min-height:100px;resize:vertical}.hero{padding:32px;display:grid;gap:24px;overflow:hidden;position:relative}.hero:after{content:"";position:absolute;width:500px;height:500px;right:-180px;top:-180px;background:radial-gradient(circle,rgba(255,157,28,.2),transparent 65%);pointer-events:none}.hero-grid{display:grid;grid-template-columns:1fr minmax(330px,.42fr);gap:24px;align-items:start;position:relative;z-index:1}.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(89,214,255,.1);border:1px solid rgba(89,214,255,.22);color:#d9f8ff;text-transform:uppercase;font-size:.78rem;font-weight:900;letter-spacing:.07em;margin-bottom:16px}h1,h2,h3,p{margin:0}h1{font-size:clamp(2.7rem,5.4vw,5.2rem);line-height:.88;letter-spacing:-.075em;max-width:11ch}h2{font-size:clamp(1.45rem,2vw,2rem);letter-spacing:-.04em}h3{font-size:1.05rem;letter-spacing:-.02em}.lead{margin-top:16px;color:var(--muted);font-size:1.03rem;line-height:1.75;max-width:72ch}.login-card{padding:18px;background:rgba(5,9,18,.45);border:1px solid var(--line);border-radius:22px;display:grid;gap:12px}.auth-row{display:grid;gap:10px}.muted,.small,.sub{color:var(--muted)}.small{font-size:.9rem}.notice{padding:12px 14px;border-radius:16px;background:rgba(89,214,255,.1);border:1px solid rgba(89,214,255,.22);color:#ddf8ff}.warning{background:rgba(255,157,28,.1);border-color:rgba(255,157,28,.24);color:#ffe4b8}.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:13px}.stat,.card,.profile-card,.rank-card,.daily-card,.chart-card,.entry,.editor{background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.025));border:1px solid var(--line);border-radius:22px}.stat{padding:18px;min-height:122px;animation:rise .45s ease both}.stat:nth-child(2){animation-delay:.04s}.stat:nth-child(3){animation-delay:.08s}.stat:nth-child(4){animation-delay:.12s}.stat:nth-child(5){animation-delay:.16s}.stat:nth-child(6){animation-delay:.2s}@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}.label{display:block;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-size:.74rem;font-weight:800;margin-bottom:10px}.value{font-size:clamp(1.85rem,3vw,2.75rem);font-weight:950;letter-spacing:-.06em;line-height:1}.win{color:var(--green)}.loss{color:var(--red)}.rate{color:var(--blue)}.home-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}.profile-card{padding:22px;display:grid;gap:16px;min-height:250px}.profile-top{display:flex;align-items:center;justify-content:space-between;gap:14px}.avatar{width:62px;height:62px;border-radius:20px;display:grid;place-items:center;font-size:1.6rem;font-weight:950;background:linear-gradient(135deg,rgba(255,157,28,.28),rgba(89,214,255,.18));border:1px solid var(--line2)}.profile-mini{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.mini{padding:13px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid var(--line)}.content-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(360px,.85fr);gap:18px}.section{padding:24px;display:grid;gap:20px}.section-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}.rank-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}.rank-card{padding:18px;min-height:132px;position:relative;overflow:hidden}.rank-card:after{content:"";position:absolute;inset:auto -30px -55px auto;width:130px;height:130px;background:currentColor;opacity:.08;border-radius:999px}.rank-line{display:flex;align-items:center;gap:14px;min-width:0}.rank-emblem{width:50px;height:50px;flex:0 0 50px;position:relative;display:grid;place-items:center}.rank-emblem:before{content:"";position:absolute;inset:6px;background:currentColor;clip-path:polygon(50% 0,86% 22%,76% 80%,50% 100%,24% 80%,14% 22%);filter:drop-shadow(0 8px 12px rgba(0,0,0,.35))}.rank-emblem:after{content:attr(data-rank);position:relative;color:#07101d;font-size:.84rem;font-weight:1000;letter-spacing:-.06em}.rank-text{font-size:clamp(1.45rem,2vw,2.05rem);font-weight:950;letter-spacing:-.06em;line-height:1.02;overflow-wrap:anywhere}.rank-bronze{color:#d89455}.rank-silver{color:#d9e0ea}.rank-gold{color:#ffd264}.rank-platinum{color:#7fe7ff}.rank-diamond{color:#7facff}.rank-master{color:#cf8dff}.rank-grandmaster{color:#ff8cb4}.rank-champion{color:#ffe58f}.rank-unranked{color:#aab6ca}.daily-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}.daily-card{padding:16px}.daily-card strong{display:block;font-size:1.15rem}.chart-card{padding:18px}.chart{height:170px;display:flex;align-items:end;gap:8px;padding-top:22px}.bar{flex:1;min-width:18px;border-radius:12px 12px 4px 4px;background:linear-gradient(180deg,#59d6ff,#396dff);position:relative}.bar span{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);font-size:.72rem;color:var(--muted);white-space:nowrap}.editor{padding:20px}.form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.hero-checklist{display:flex;flex-wrap:wrap;gap:10px;max-height:210px;overflow:auto;padding:2px}.hero-pill{position:relative;cursor:pointer}.hero-pill input{position:absolute;opacity:0}.hero-pill span{display:inline-flex;padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid var(--line);font-size:.92rem}.hero-pill input:checked+span{background:linear-gradient(135deg,rgba(255,157,28,.25),rgba(89,214,255,.18));border-color:var(--line2)}.bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.list{display:grid;gap:10px;max-height:620px;overflow:auto}.entry{padding:14px 16px;display:flex;justify-content:space-between;gap:12px;align-items:center}.tag{display:inline-flex;padding:8px 10px;border-radius:999px;font-size:.8rem;font-weight:900}.tag.win{background:rgba(46,212,122,.15);color:#b7f8d0}.tag.loss{background:rgba(255,100,120,.14);color:#ffc4cc}.empty{padding:28px;border:1px dashed var(--line2);border-radius:20px;text-align:center;color:var(--muted)}a{color:#c6efff}@media(max-width:1100px){.hero-grid,.content-grid,.bottom-grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.home-grid{grid-template-columns:1fr}.topbar{position:relative;top:0}.form-grid{grid-template-columns:1fr}}@media(max-width:620px){.app{width:min(100% - 18px,1420px);margin-top:10px}.hero,.section{padding:18px}.stats{grid-template-columns:1fr}.nav{width:100%}.topbar{align-items:flex-start;flex-direction:column}.entry{align-items:flex-start;flex-direction:column}}
+:root{
+  --bg:#050914;
+  --line:rgba(255,255,255,.11);
+  --line2:rgba(255,255,255,.2);
+  --text:#f8fbff;
+  --muted:#9db0cf;
+  --orange:#ff9d1c;
+  --blue:#62d8ff;
+  --green:#91f2b4;
+  --red:#ff9aaa;
+  --shadow:0 30px 90px rgba(0,0,0,.45);
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 15% -10%,rgba(98,216,255,.16),transparent 30%),
+    radial-gradient(circle at 90% 5%,rgba(255,157,28,.16),transparent 30%),
+    linear-gradient(180deg,#0b1428,#050914 55%,#03060c);
+}
+
+body:before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.024) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.024) 1px,transparent 1px);
+  background-size:44px 44px;
+  pointer-events:none;
+  mask-image:linear-gradient(#000,transparent 88%);
+}
+
+.app{
+  position:relative;
+  z-index:1;
+  width:min(1440px,calc(100% - 28px));
+  margin:18px auto 48px;
+  display:grid;
+  gap:18px;
+}
+
+.surface{
+  background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.028));
+  border:1px solid var(--line);
+  box-shadow:var(--shadow);
+  border-radius:28px;
+  backdrop-filter:blur(18px);
+}
+
+.top{
+  position:sticky;
+  top:12px;
+  z-index:5;
+  padding:12px 14px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:14px;
+}
+
+.nav{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.brand{
+  font-weight:950;
+  letter-spacing:-.05em;
+}
+
+.brand span{color:var(--orange)}
+
+button,input,select,textarea{font:inherit}
+
+button{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.06);
+  color:var(--text);
+  padding:11px 15px;
+  border-radius:15px;
+  font-weight:850;
+  cursor:pointer;
+  transition:.16s ease;
+}
+
+button:hover{
+  transform:translateY(-1px);
+  background:rgba(255,255,255,.1);
+  border-color:var(--line2);
+}
+
+button.active{
+  background:linear-gradient(135deg,rgba(255,157,28,.25),rgba(98,216,255,.18));
+  border-color:rgba(255,255,255,.2);
+}
+
+button.primary{
+  background:linear-gradient(135deg,#ff9d1c,#ffc36a);
+  color:#121a29;
+  border:0;
+}
+
+button.secondary{
+  background:rgba(98,216,255,.13);
+  border-color:rgba(98,216,255,.25);
+}
+
+button.danger{
+  background:rgba(255,100,120,.14);
+  color:#ffc8d0;
+}
+
+input,select,textarea{
+  width:100%;
+  background:#0a111f;
+  border:1px solid var(--line);
+  color:var(--text);
+  padding:13px 14px;
+  border-radius:15px;
+  outline:none;
+}
+
+select option{
+  background:#101827;
+  color:#fff;
+}
+
+textarea{
+  min-height:100px;
+  resize:vertical;
+}
+
+.hero{
+  padding:34px;
+  overflow:hidden;
+  position:relative;
+}
+
+.hero:after{
+  content:"";
+  position:absolute;
+  right:-220px;
+  top:-220px;
+  width:540px;
+  height:540px;
+  background:radial-gradient(circle,rgba(255,157,28,.22),transparent 65%);
+  pointer-events:none;
+}
+
+.hero-grid{
+  position:relative;
+  z-index:1;
+  display:grid;
+  grid-template-columns:1fr minmax(330px,.42fr);
+  gap:24px;
+}
+
+.eyebrow{
+  display:inline-flex;
+  padding:8px 12px;
+  border-radius:999px;
+  border:1px solid rgba(98,216,255,.24);
+  background:rgba(98,216,255,.1);
+  color:#dff8ff;
+  text-transform:uppercase;
+  font-size:.76rem;
+  font-weight:950;
+  letter-spacing:.07em;
+  margin-bottom:16px;
+}
+
+h1,h2,h3,p{margin:0}
+
+h1{
+  font-size:clamp(2.6rem,5.5vw,5.2rem);
+  line-height:.88;
+  letter-spacing:-.075em;
+  max-width:11ch;
+}
+
+h2{
+  font-size:clamp(1.45rem,2vw,2rem);
+  letter-spacing:-.04em;
+}
+
+h3{font-size:1.05rem}
+
+.lead{
+  margin-top:16px;
+  color:var(--muted);
+  line-height:1.75;
+  font-size:1.03rem;
+  max-width:75ch;
+}
+
+.login{
+  padding:18px;
+  border-radius:22px;
+  border:1px solid var(--line);
+  background:rgba(5,9,18,.5);
+  display:grid;
+  gap:12px;
+}
+
+.auth{display:grid;gap:10px}
+
+.notice{
+  padding:12px 14px;
+  border-radius:16px;
+  border:1px solid rgba(98,216,255,.24);
+  background:rgba(98,216,255,.1);
+  color:#dff8ff;
+}
+
+.warn{
+  border-color:rgba(255,157,28,.28);
+  background:rgba(255,157,28,.1);
+  color:#ffe4bd;
+}
+
+.muted,.small,.sub,.meta{color:var(--muted)}
+.small,.meta{font-size:.9rem}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:13px;
+  margin-top:24px;
+}
+
+.stat,.panel,.profile,.rank,.daily,.entry,.editor,.mini{
+  background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.025));
+  border:1px solid var(--line);
+  border-radius:22px;
+}
+
+.stat{
+  padding:18px;
+  min-height:120px;
+  animation:rise .45s ease both;
+}
+
+.stat:nth-child(2){animation-delay:.04s}
+.stat:nth-child(3){animation-delay:.08s}
+.stat:nth-child(4){animation-delay:.12s}
+.stat:nth-child(5){animation-delay:.16s}
+.stat:nth-child(6){animation-delay:.2s}
+
+@keyframes rise{
+  from{opacity:0;transform:translateY(12px)}
+  to{opacity:1;transform:none}
+}
+
+.label{
+  display:block;
+  text-transform:uppercase;
+  letter-spacing:.07em;
+  color:var(--muted);
+  font-size:.74rem;
+  font-weight:850;
+  margin-bottom:10px;
+}
+
+.value{
+  font-size:clamp(1.75rem,3vw,2.65rem);
+  font-weight:950;
+  line-height:1;
+  letter-spacing:-.06em;
+}
+
+.win{color:var(--green)}
+.loss{color:var(--red)}
+.rate{color:var(--blue)}
+
+.home-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:18px;
+  margin-top:24px;
+}
+
+.profile{
+  padding:22px;
+  display:grid;
+  gap:16px;
+}
+
+.profile-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:14px;
+}
+
+.avatar{
+  width:64px;
+  height:64px;
+  border-radius:20px;
+  display:grid;
+  place-items:center;
+  font-weight:950;
+  font-size:1.6rem;
+  border:1px solid rgba(255,255,255,.18);
+  background:linear-gradient(135deg,rgba(255,157,28,.28),rgba(98,216,255,.18));
+}
+
+.mini-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+
+.mini{padding:13px}
+
+.main{
+  display:grid;
+  grid-template-columns:minmax(0,1.15fr) minmax(360px,.85fr);
+  gap:18px;
+}
+
+.section{
+  padding:24px;
+  display:grid;
+  gap:20px;
+}
+
+.section-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:16px;
+  flex-wrap:wrap;
+}
+
+.rank-grid,.daily-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  gap:14px;
+}
+
+.rank{
+  padding:18px;
+  min-height:132px;
+  position:relative;
+  overflow:hidden;
+}
+
+.rank:after{
+  content:"";
+  position:absolute;
+  right:-35px;
+  bottom:-65px;
+  width:145px;
+  height:145px;
+  background:currentColor;
+  opacity:.08;
+  border-radius:50%;
+}
+
+.rank-line{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.rank-icon{
+  width:58px;
+  height:58px;
+  flex:0 0 58px;
+  display:grid;
+  place-items:center;
+  position:relative;
+}
+
+.rank-icon img{
+  width:58px;
+  height:58px;
+  object-fit:contain;
+  filter:drop-shadow(0 10px 14px rgba(0,0,0,.42));
+}
+
+.rank-icon.fallback:before{
+  content:"";
+  position:absolute;
+  inset:6px;
+  background:currentColor;
+  clip-path:polygon(50% 0,88% 24%,78% 80%,50% 100%,22% 80%,12% 24%);
+}
+
+.rank-icon.fallback:after{
+  content:attr(data-rank);
+  position:relative;
+  color:#07101d;
+  font-size:.82rem;
+  font-weight:1000;
+}
+
+.rank-text{
+  font-size:clamp(1.45rem,2vw,2.05rem);
+  font-weight:950;
+  line-height:1.02;
+  letter-spacing:-.06em;
+}
+
+.rank-bronze{color:#d89455}
+.rank-silver{color:#d9e0ea}
+.rank-gold{color:#ffd264}
+.rank-platinum{color:#7fe7ff}
+.rank-diamond{color:#7facff}
+.rank-master{color:#cf8dff}
+.rank-grandmaster{color:#ff8cb4}
+.rank-champion{color:#ffe58f}
+.rank-unranked{color:#aab6ca}
+
+.daily{padding:16px}
+.daily strong{font-size:1.15rem}
+
+.chart{
+  height:170px;
+  display:flex;
+  align-items:end;
+  gap:8px;
+  padding-top:24px;
+}
+
+.bar{
+  flex:1;
+  min-width:18px;
+  border-radius:12px 12px 4px 4px;
+  background:linear-gradient(180deg,#62d8ff,#396dff);
+  position:relative;
+}
+
+.bar span{
+  position:absolute;
+  bottom:calc(100% + 4px);
+  left:50%;
+  transform:translateX(-50%);
+  font-size:.72rem;
+  color:var(--muted);
+}
+
+.editor{padding:20px}
+
+.form{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+
+.heroes{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  max-height:210px;
+  overflow:auto;
+}
+
+.pill{
+  position:relative;
+  cursor:pointer;
+}
+
+.pill input{
+  position:absolute;
+  opacity:0;
+}
+
+.pill span{
+  display:inline-flex;
+  padding:10px 14px;
+  border-radius:999px;
+  background:rgba(255,255,255,.05);
+  border:1px solid var(--line);
+}
+
+.pill input:checked+span{
+  background:linear-gradient(135deg,rgba(255,157,28,.25),rgba(98,216,255,.18));
+  border-color:rgba(255,255,255,.2);
+}
+
+.bottom{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px;
+}
+
+.list{
+  display:grid;
+  gap:10px;
+  max-height:620px;
+  overflow:auto;
+}
+
+.entry{
+  padding:14px 16px;
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+}
+
+.tag{
+  display:inline-flex;
+  padding:8px 10px;
+  border-radius:999px;
+  font-size:.8rem;
+  font-weight:900;
+}
+
+.tag.win{
+  background:rgba(46,212,122,.15);
+  color:#b7f8d0;
+}
+
+.tag.loss{
+  background:rgba(255,100,120,.14);
+  color:#ffc4cc;
+}
+
+.empty{
+  padding:28px;
+  border:1px dashed rgba(255,255,255,.18);
+  border-radius:20px;
+  text-align:center;
+  color:var(--muted);
+}
+
+a{color:#caf0ff}
+
+@media(max-width:1100px){
+  .hero-grid,.main,.bottom{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .home-grid{grid-template-columns:1fr}
+  .top{position:relative;top:0}
+  .form{grid-template-columns:1fr}
+}
+
+@media(max-width:620px){
+  .app{width:calc(100% - 18px);margin-top:10px}
+  .hero,.section{padding:18px}
+  .stats{grid-template-columns:1fr}
+  .top{flex-direction:column;align-items:flex-start}
+  .entry{align-items:flex-start;flex-direction:column}
+}
 </style>
 </head>
+
 <body>
 <div id="root"></div>
+
 <script>
-const SUPABASE_URL='https://pgutyryolqmdokcoopto.supabase.co';
-const SUPABASE_KEY='sb_publishable_LiBZuCHj__muZ1GYKsbRNg_gcWjX7oS';
-const ROLE_LABELS={tank:'Tank',damage:'Damage',support:'Support',open_queue:'Open Queue'};
-const HEROES_BY_ROLE={tank:['D.Va','Doomfist','Hazard','Junker Queen','Mauga','Orisa','Ramattra','Reinhardt','Roadhog','Sigma','Winston','Wrecking Ball','Zarya'],damage:['Ashe','Bastion','Cassidy','Echo','Freja','Genji','Hanzo','Junkrat','Mei','Pharah','Reaper','Sojourn','Soldier: 76','Sombra','Symmetra','Torbjörn','Tracer','Venture','Widowmaker'],support:['Ana','Baptiste','Brigitte','Illari','Juno','Kiriko','Lifeweaver','Lúcio','Mercy','Moira','Zenyatta']};
-const ALL_HEROES=[...HEROES_BY_ROLE.tank,...HEROES_BY_ROLE.damage,...HEROES_BY_ROLE.support].sort();
-let client=null,user=null,matches=[],ranks=[],selected=null,dbReady=false,notice='';
-let profiles=[{slug:'scalii',display_name:'Scalii',battletag:'Scalii#2905',battletag_slug:'Scalii-2905',blizzard_profile_url:'https://overwatch.blizzard.com/en-us/career/c15dad86ba78d6ffb0a022%7Cab18d17d2e26f8db1868b8f0c0a98492/'},{slug:'koi',display_name:'Koi',battletag:'Koi#21676',battletag_slug:'Koi-21676',blizzard_profile_url:'https://overwatch.blizzard.com/en-us/career/f951a5c7e120cdfabf%7C1a2d2e391438c6788d4210edd57843ad/'}];
-const root=document.getElementById('root');
-const todayISO=()=>new Date().toISOString().slice(0,10);
-const pct=(w,t)=>t?Math.round(w/t*100)+'%':'0%';
-const qs=id=>document.getElementById(id);
-function esc(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
-function titleCase(v){return String(v||'').replace(/[_-]/g,' ').replace(/\b\w/g,m=>m.toUpperCase())}
-function heroesForRole(role){return role==='open_queue'?ALL_HEROES:(HEROES_BY_ROLE[role]||[])}
-function heroChecklist(role){return '<div class="hero-checklist">'+heroesForRole(role).map(hero=>'<label class="hero-pill"><input type="checkbox" name="heroMulti" value="'+esc(hero)+'"><span>'+esc(hero)+'</span></label>').join('')+'</div>'}
-function summarize(list){const wins=list.filter(x=>x.result==='win').length,losses=list.filter(x=>x.result==='loss').length;return{wins,losses,total:wins+losses,rate:pct(wins,wins+losses)}}
-function summarizeByRole(list){const out={};Object.keys(ROLE_LABELS).forEach(role=>out[role]=summarize(list.filter(x=>x.role===role)));return out}
-function summarizeByHero(list){const map=new Map();list.forEach(match=>{String(match.hero||'').split(',').map(x=>x.trim()).filter(Boolean).forEach(hero=>{const key=match.role+'__'+hero;if(!map.has(key))map.set(key,{role:match.role,hero,wins:0,losses:0});const row=map.get(key);match.result==='win'?row.wins++:row.losses++})});return[...map.values()].map(x=>({...x,total:x.wins+x.losses,rate:pct(x.wins,x.wins+x.losses)})).sort((a,b)=>b.total-a.total)}
-function byDay(list){const map=new Map();list.slice().reverse().forEach(m=>{const k=m.played_on||'';if(!map.has(k))map.set(k,{d:k,w:0,l:0});m.result==='win'?map.get(k).w++:map.get(k).l++});return[...map.values()].slice(-10)}
-function findImg(obj,depth=0){if(!obj||depth>4)return'';if(typeof obj==='string'&&/^https?:\/\/.+\.(png|webp|svg|jpg|jpeg)/i.test(obj))return obj;if(typeof obj==='object'){for(const k of Object.keys(obj)){const r=findImg(obj[k],depth+1);if(r)return r}}return''}
-function rankInfo(record){if(!record)return{label:'Unranked',icon:'?',cls:'rank-unranked',img:''};const raw=record.raw_data||{};const candidates=[record.division,record.rank_label,raw.division,raw.rank,raw.tier_name,raw.name,raw.rank_name].filter(Boolean).map(String);const clean=candidates.map(x=>x.replace(/https?:\/\/\S+/g,'').trim()).filter(Boolean);let name=clean.find(x=>/(bronze|silver|gold|platinum|diamond|master|grandmaster|champion)/i.test(x))||clean[0]||'';let div=[raw.division_tier,raw.tier_number,raw.division_number,raw.subdivision,raw.tier].find(x=>/^\d+$/.test(String(x)))||'';const label=name?titleCase(name)+(div?' '+div:''):'Unranked';const check=label.toLowerCase();let cls='rank-unranked',icon='?';if(check.includes('champion')){cls='rank-champion';icon='C'}else if(check.includes('grandmaster')){cls='rank-grandmaster';icon='GM'}else if(check.includes('master')){cls='rank-master';icon='M'}else if(check.includes('diamond')){cls='rank-diamond';icon='D'}else if(check.includes('platinum')){cls='rank-platinum';icon='P'}else if(check.includes('gold')){cls='rank-gold';icon='G'}else if(check.includes('silver')){cls='rank-silver';icon='S'}else if(check.includes('bronze')){cls='rank-bronze';icon='B'}return{label,icon,cls,img:findImg(raw)}}
-function selectedProfile(){return profiles.find(p=>p.slug===selected)||null}
-function canEdit(){const p=selectedProfile();const email=(user?.email||'').toLowerCase();return!!(dbReady&&user&&p&&(p.auth_user_id===user.id||email.split('@')[0]===p.slug))}
-function setRoute(slug){selected=slug||null;history.replaceState(null,'',slug?'#'+slug:location.pathname);loadData()}
-function authBox(){return user?'<div class="notice">Logged in as <strong>'+esc(user.email)+'</strong></div><button id="logoutBtn">Logout</button>':'<form id="loginForm" class="auth-row"><input id="loginUsername" aria-label="Username" placeholder="username"><input id="loginPassword" type="password" aria-label="Password" placeholder="password"><button class="primary">Login</button></form>'}
-function navHtml(){return '<nav class="topbar surface"><div class="nav"><div class="brand">OW <span>Ranked</span></div><button data-home class="'+(!selected?'active':'')+'">Home</button>'+profiles.map(p=>'<button data-profile-nav="'+esc(p.slug)+'" class="'+(p.slug===selected?'active':'')+'">'+esc(p.display_name)+'</button>').join('')+'</div><div class="small">'+(user?'Logged in: '+esc(user.email):'Public showcase')+'</div></nav>'}
-function shell(inner){root.innerHTML='<div class="app">'+navHtml()+inner+'</div>';bindNav()}
-function renderHome(){const cards=profiles.map(p=>{const list=matches.filter(m=>m.profile_slug===p.slug),s=summarize(list);return '<div class="profile-card"><div class="profile-top"><div><div class="label">Profile</div><h2>'+esc(p.display_name)+'</h2><p class="sub">'+esc(p.battletag||'')+'</p></div><div class="avatar">'+esc(p.display_name[0]||'?')+'</div></div><div class="profile-mini"><div class="mini"><div class="label">Winrate</div><div class="value rate">'+s.rate+'</div></div><div class="mini"><div class="label">Wins</div><div class="value win">'+s.wins+'</div></div><div class="mini"><div class="label">Games</div><div class="value">'+s.total+'</div></div></div><button class="primary" data-profile-nav="'+esc(p.slug)+'">Open dashboard</button></div>'}).join('');shell('<section class="hero surface"><div class="hero-grid"><div><div class="eyebrow">Homepage</div><h1>Choose a profile. Track the climb.</h1><p class="lead">A premium ranked dashboard for daily Overwatch sessions, role performance, hero swaps, rank snapshots and winrate progress.</p></div><div class="login-card">'+authBox()+(notice?'<div class="notice warning">'+esc(notice)+'</div>':'')+'</div></div><div class="home-grid">'+cards+'</div></section>')}
-function statGrid(totals,today){return '<div class="stats"><div class="stat"><div class="label">Total Wins</div><div class="value win">'+totals.wins+'</div><div class="small">Tracked sessions</div></div><div class="stat"><div class="label">Losses</div><div class="value loss">'+totals.losses+'</div><div class="small">Tracked sessions</div></div><div class="stat"><div class="label">Games</div><div class="value">'+totals.total+'</div><div class="small">Lifetime tracked</div></div><div class="stat"><div class="label">Winrate</div><div class="value rate">'+totals.rate+'</div><div class="small">Overall</div></div><div class="stat"><div class="label">Today</div><div class="value">'+today.total+'</div><div class="small">Daily session</div></div><div class="stat"><div class="label">Today WR</div><div class="value rate">'+today.rate+'</div><div class="small">Live session</div></div></div>'}
-function renderProfile(){const p=selectedProfile();if(!p){renderHome();return}const editable=canEdit(),list=matches.filter(m=>m.profile_slug===selected),totals=summarize(list),today=summarize(list.filter(x=>x.played_on===todayISO())),todayRoles=summarizeByRole(list.filter(x=>x.played_on===todayISO())),heroStats=summarizeByHero(list),rankMap=Object.fromEntries(ranks.filter(r=>r.profile_slug===selected).map(r=>[r.role,r])),days=byDay(list);shell('<section class="hero surface"><div class="hero-grid"><div><div class="eyebrow">'+esc(p.display_name)+' dashboard</div><h1>Track the climb. Review every session.</h1><p class="lead">'+esc(p.battletag||'')+' · '+(p.blizzard_profile_url?'<a href="'+esc(p.blizzard_profile_url)+'" target="_blank">Official profile</a>':'Public profile')+'</p></div><div class="login-card">'+authBox()+(notice?'<div class="notice warning">'+esc(notice)+'</div>':'')+'</div></div>'+statGrid(totals,today)+'</section><section class="content-grid"><div class="section surface"><div class="section-head"><div><h2>Competitive ranks</h2><p class="sub">Rank emblems by role. Synced when public data is available.</p></div><div class="notice">'+(editable?'Session tools unlocked':'Showcase mode')+'</div></div><div class="rank-grid">'+Object.keys(ROLE_LABELS).map(role=>{const r=rankInfo(rankMap[role]);return '<div class="rank-card '+r.cls+'"><div class="label">'+ROLE_LABELS[role]+'</div><div class="rank-line"><span class="rank-emblem" data-rank="'+esc(r.icon)+'"></span><span class="rank-text">'+esc(r.label)+'</span></div></div>'}).join('')+'</div><div><h3>Daily breakdown</h3><p class="sub">Role-by-role results for today.</p></div><div class="daily-grid">'+Object.keys(ROLE_LABELS).map(role=>'<div class="daily-card"><div class="label">'+ROLE_LABELS[role]+'</div><strong>'+todayRoles[role].wins+'W / '+todayRoles[role].losses+'L</strong><div class="small">'+todayRoles[role].rate+'</div></div>').join('')+'</div><div class="chart-card"><h3>Winrate over time</h3><div class="chart">'+(days.length?days.map(d=>{const total=d.w+d.l,rate=total?Math.round(d.w/total*100):0;return '<div class="bar" style="height:'+Math.max(8,rate)+'%"><span>'+rate+'%</span></div>'}).join(''):'<div class="empty">No graph data yet.</div>')+'</div></div></div>'+(editable?editorHtml():'<div class="section surface"><h2>Session overview</h2><p class="sub">Public view for rank progress and recent results.</p><div class="empty">Login as '+esc(p.display_name)+' to unlock the personal session tracker.</div></div>')+'</section><section class="bottom-grid"><div class="section surface"><h2>Hero performance</h2><div class="list">'+(heroStats.length?heroStats.map(h=>'<div class="entry"><div><strong>'+esc(h.hero)+'</strong><div class="meta">'+(ROLE_LABELS[h.role]||h.role)+' · '+h.total+' games</div></div><div style="text-align:right"><strong>'+h.wins+'W / '+h.losses+'L</strong><div class="meta">'+h.rate+'</div></div></div>').join(''):'<div class="empty">No hero stats yet.</div>')+'</div></div><div class="section surface"><h2>Recent entries</h2><div class="list">'+(list.length?list.map(m=>'<div class="entry"><div><strong>'+esc(m.hero)+'</strong><div class="meta">'+(ROLE_LABELS[m.role]||m.role)+' · '+esc(m.played_on)+'</div>'+(m.note?'<div class="meta">'+esc(m.note)+'</div>':'')+'</div><div><span class="tag '+esc(m.result)+'">'+String(m.result).toUpperCase()+'</span>'+(editable?'<button class="danger" data-delete="'+esc(m.id)+'">Remove</button>':'')+'</div></div>').join(''):'<div class="empty">No entries saved yet.</div>')+'</div></div></section>')}
-function editorHtml(){return '<div class="section surface"><div class="editor"><h2>Personal session tracker</h2><p class="sub">Count wins and losses for your ranked grind. Select every hero you played in the round.</p><form id="matchForm"><div class="form-grid"><div><div class="label">Date</div><input id="playedOn" type="date" value="'+todayISO()+'"></div><div><div class="label">Role</div><select id="role"><option value="damage" selected>Damage</option><option value="tank">Tank</option><option value="support">Support</option><option value="open_queue">Open Queue</option></select></div><div><div class="label">Result</div><select id="result"><option value="win">Win</option><option value="loss">Loss</option></select></div><div id="heroChecklistWrap" style="grid-column:1/-1"><div class="label">Heroes played this round</div>'+heroChecklist('damage')+'</div></div><div style="margin-top:12px"><div class="label">Session note</div><textarea id="note"></textarea></div><div class="toolbar" style="margin-top:14px"><button class="primary">Save entry</button><button type="button" id="syncRanksBtn" class="secondary">Sync ranks</button></div></form></div></div>'}
-function render(){selected?renderProfile():renderHome()}
-function bindNav(){document.querySelectorAll('[data-home]').forEach(btn=>btn.addEventListener('click',()=>setRoute(null)));document.querySelectorAll('[data-profile-nav]').forEach(btn=>btn.addEventListener('click',()=>setRoute(btn.dataset.profileNav)));qs('loginForm')?.addEventListener('submit',login);qs('logoutBtn')?.addEventListener('click',logout);qs('matchForm')?.addEventListener('submit',saveEntry);document.querySelectorAll('#syncRanksBtn').forEach(btn=>btn.addEventListener('click',syncRanks));qs('role')?.addEventListener('change',()=>{qs('heroChecklistWrap').innerHTML='<div class="label">Heroes played this round</div>'+heroChecklist(qs('role').value)});document.querySelectorAll('[data-delete]').forEach(btn=>btn.addEventListener('click',()=>removeEntry(btn.dataset.delete)))}
-function loadScript(){return new Promise((resolve,reject)=>{const s=document.createElement('script');let done=false;const timer=setTimeout(()=>{if(!done){done=true;reject(new Error('Supabase library timeout'))}},5000);s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';s.onload=()=>{if(done)return;done=true;clearTimeout(timer);resolve()};s.onerror=()=>{if(done)return;done=true;clearTimeout(timer);reject(new Error('Supabase library failed to load'))};document.head.appendChild(s)})}
-function withTimeout(p,ms,label){return Promise.race([p,new Promise((_,reject)=>setTimeout(()=>reject(new Error(label+' timeout')),ms))])}
-async function loadData(){render();if(!client){notice='Connecting to database...';render();return}try{notice='';try{const auth=await withTimeout(client.auth.getUser(),8000,'Auth');user=auth.data.user||null}catch(e){user=null}const p=await withTimeout(client.from('profiles').select('*').order('display_name'),8000,'Profiles');if(p.data&&p.data.length)profiles=p.data;const m=await withTimeout(client.from('matches').select('*').order('played_on',{ascending:false}).order('created_at',{ascending:false}),8000,'Matches');matches=m.data||[];const r=await withTimeout(client.from('rank_snapshots').select('*'),8000,'Ranks');ranks=r.data||[];dbReady=true;notice='';render();if(selected)fetchLiveRanks(false)}catch(err){dbReady=false;notice='Database connection issue: '+(err.message||err);render()}}
-function loginEmail(input){const v=input.trim().toLowerCase();return v.includes('@')?v:v+'@tracker.local'}
-async function login(e){e.preventDefault();if(!client)return alert('Database is not connected yet.');const username=qs('loginUsername').value;const password=qs('loginPassword').value;const{error}=await client.auth.signInWithPassword({email:loginEmail(username),password});if(error)return alert(error.message);await loadData()}
-async function logout(){if(client)await client.auth.signOut();await loadData()}
-async function saveEntry(e){e.preventDefault();if(!client)return alert('Database is not connected.');const selectedHeroes=[...document.querySelectorAll('input[name="heroMulti"]:checked')].map(x=>x.value);if(!selectedHeroes.length)return alert('Select at least one hero.');const payload={profile_slug:selected,played_on:qs('playedOn').value||todayISO(),role:qs('role').value,hero:selectedHeroes.join(', '),result:qs('result').value,note:qs('note').value.trim()||null};const{error}=await client.from('matches').insert(payload);if(error)return alert(error.message);await loadData()}
-async function removeEntry(id){if(!client)return;if(!confirm('Remove this entry?'))return;await client.from('matches').delete().eq('id',id);await loadData()}
-async function fetchOverfastSummary(profile){const ids=[profile.battletag_slug,profile.battletag?profile.battletag.replace('#','-'):null].filter(Boolean);for(const id of [...new Set(ids)]){try{const res=await fetch('https://overfast-api.tekrop.fr/players/'+encodeURIComponent(id)+'/summary');if(res.ok){const json=await res.json();if(json&&json.competitive)return json}}catch(e){}}return null}
-async function fetchLiveRanks(save){const profile=selectedProfile();if(!profile)return;const json=await fetchOverfastSummary(profile);if(!json)return;const roleMap={tank:json?.competitive?.pc?.tank,damage:json?.competitive?.pc?.damage,support:json?.competitive?.pc?.support,open_queue:json?.competitive?.pc?.open_queue};const live=[];for(const role of Object.keys(roleMap)){const value=roleMap[role];if(!value)continue;const row={profile_slug:selected,role,rank_label:value.rank||value.division||null,division:value.division||null,raw_data:value,source:'overfast',synced_at:new Date().toISOString()};live.push(row);if(save&&client)await client.from('rank_snapshots').upsert(row,{onConflict:'profile_slug,role'})}if(!save){ranks=[...ranks.filter(r=>r.profile_slug!==selected||!live.some(x=>x.role===r.role)),...live];render()}}
-async function syncRanks(){try{await fetchLiveRanks(true);await loadData()}catch(err){alert('Rank sync failed. Koi may not be available through the public Overfast API yet.')}}
-const initialHash=location.hash.replace('#','').trim().toLowerCase();selected=['scalii','koi'].includes(initialHash)?initialHash:null;render();loadScript().then(()=>{client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);return loadData()}).catch(err=>{notice='Could not load database library. The public showcase still works.';render()});setInterval(()=>{if(user&&client&&selected)syncRanks()},600000);
+const SUPABASE_URL = 'https://pgutyryolqmdokcoopto.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_LiBZuCHj__muZ1GYKsbRNg_gcWjX7oS';
+
+const ROLE_LABELS = {
+  tank:'Tank',
+  damage:'Damage',
+  support:'Support',
+  open_queue:'Open Queue'
+};
+
+const HEROES_BY_ROLE = {
+  tank:['D.Va','Doomfist','Hazard','Junker Queen','Mauga','Orisa','Ramattra','Reinhardt','Roadhog','Sigma','Winston','Wrecking Ball','Zarya'],
+  damage:['Ashe','Bastion','Cassidy','Echo','Freja','Genji','Hanzo','Junkrat','Mei','Pharah','Reaper','Sojourn','Soldier: 76','Sombra','Symmetra','Torbjörn','Tracer','Venture','Widowmaker'],
+  support:['Ana','Baptiste','Brigitte','Illari','Juno','Kiriko','Lifeweaver','Lúcio','Mercy','Moira','Zenyatta']
+};
+
+const ALL_HEROES = [
+  ...HEROES_BY_ROLE.tank,
+  ...HEROES_BY_ROLE.damage,
+  ...HEROES_BY_ROLE.support
+].sort();
+
+let client = null;
+let user = null;
+let matches = [];
+let ranks = [];
+let selected = null;
+let dbReady = false;
+let notice = '';
+
+let profiles = [
+  {
+    slug:'scalii',
+    display_name:'Scalii',
+    battletag:'Scalii#2905',
+    battletag_slug:'Scalii-2905',
+    blizzard_profile_url:'https://overwatch.blizzard.com/en-us/career/c15dad86ba78d6ffb0a022%7Cab18d17d2e26f8db1868b8f0c0a98492/'
+  },
+  {
+    slug:'koi',
+    display_name:'Koi',
+    battletag:'Koi#21676',
+    battletag_slug:'Koi-21676',
+    blizzard_profile_url:'https://overwatch.blizzard.com/en-us/career/f951a5c7e120cdfabf%7C1a2d2e391438c6788d4210edd57843ad/'
+  }
+];
+
+const root = document.getElementById('root');
+const todayISO = () => new Date().toISOString().slice(0,10);
+const pct = (w,t) => t ? Math.round(w/t*100)+'%' : '0%';
+const qs = id => document.getElementById(id);
+
+function esc(v){
+  return String(v ?? '').replace(/[&<>'"]/g,c=>({
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    "'":'&#39;',
+    '"':'&quot;'
+  }[c]));
+}
+
+function title(v){
+  return String(v || '')
+    .replace(/[_-]/g,' ')
+    .replace(/\b\w/g,m=>m.toUpperCase());
+}
+
+function heroes(role){
+  return role === 'open_queue' ? ALL_HEROES : (HEROES_BY_ROLE[role] || []);
+}
+
+function heroChecklist(role){
+  return '<div class="heroes">' + heroes(role).map(h => `
+    <label class="pill">
+      <input type="checkbox" name="heroMulti" value="${esc(h)}">
+      <span>${esc(h)}</span>
+    </label>
+  `).join('') + '</div>';
+}
+
+function summarize(list){
+  const wins = list.filter(x=>x.result === 'win').length;
+  const losses = list.filter(x=>x.result === 'loss').length;
+  return {
+    wins,
+    losses,
+    total:wins + losses,
+    rate:pct(wins,wins + losses)
+  };
+}
+
+function summarizeByRole(list){
+  const out = {};
+  Object.keys(ROLE_LABELS).forEach(r=>{
+    out[r] = summarize(list.filter(x=>x.role === r));
+  });
+  return out;
+}
+
+function summarizeByHero(list){
+  const map = new Map();
+
+  list.forEach(m=>{
+    String(m.hero || '')
+      .split(',')
+      .map(x=>x.trim())
+      .filter(Boolean)
+      .forEach(h=>{
+        const key = m.role + '__' + h;
+        if(!map.has(key)){
+          map.set(key,{role:m.role,hero:h,wins:0,losses:0});
+        }
+        if(m.result === 'win') map.get(key).wins++;
+        else map.get(key).losses++;
+      });
+  });
+
+  return [...map.values()]
+    .map(x=>({
+      ...x,
+      total:x.wins + x.losses,
+      rate:pct(x.wins,x.wins + x.losses)
+    }))
+    .sort((a,b)=>b.total - a.total);
+}
+
+function byDay(list){
+  const map = new Map();
+
+  list.slice().reverse().forEach(m=>{
+    const k = m.played_on || '';
+    if(!map.has(k)) map.set(k,{d:k,w:0,l:0});
+    if(m.result === 'win') map.get(k).w++;
+    else map.get(k).l++;
+  });
+
+  return [...map.values()].slice(-10);
+}
+
+/*
+  This is the important rank-icon fix.
+
+  The old version grabbed the first image URL it found.
+  That could accidentally be a role icon: tank, damage, support.
+
+  This version:
+  - scans every image URL in the API data
+  - rejects role icons
+  - prefers URLs that match the actual rank name
+  - then falls back to rank/tier/division-looking URLs
+  - then falls back to the custom emblem
+*/
+function urls(obj,depth=0,out=[]){
+  if(!obj || depth > 6) return out;
+
+  if(typeof obj === 'string' && /^https?:\/\/.+\.(png|webp|svg|jpg|jpeg)/i.test(obj)){
+    out.push(obj);
+  } else if(typeof obj === 'object'){
+    Object.keys(obj).forEach(k=>urls(obj[k],depth+1,out));
+  }
+
+  return out;
+}
+
+function rankImg(raw,label){
+  const all = urls(raw);
+
+  const terms = [
+    'bronze',
+    'silver',
+    'gold',
+    'platinum',
+    'diamond',
+    'master',
+    'grandmaster',
+    'champion'
+  ];
+
+  const term = terms.find(t=>label.toLowerCase().includes(t));
+
+  const bad = /(tank|damage|support|role|roles|career-role|competitive-role|icon-portrait|hero)/i;
+
+  return (
+    all.find(u=>!bad.test(u) && term && u.toLowerCase().includes(term)) ||
+    all.find(u=>!bad.test(u) && /(rank|tier|division|competitive)/i.test(u)) ||
+    ''
+  );
+}
+
+function rankInfo(rec){
+  if(!rec){
+    return {label:'Unranked',icon:'?',cls:'rank-unranked',img:''};
+  }
+
+  const raw = rec.raw_data || {};
+
+  const candidates = [
+    rec.division,
+    rec.rank_label,
+    raw.division,
+    raw.rank,
+    raw.tier_name,
+    raw.name,
+    raw.rank_name
+  ].filter(Boolean).map(String);
+
+  const clean = candidates
+    .map(x=>x.replace(/https?:\/\/\S+/g,'').trim())
+    .filter(Boolean);
+
+  const name =
+    clean.find(x=>/(bronze|silver|gold|platinum|diamond|master|grandmaster|champion)/i.test(x)) ||
+    clean[0] ||
+    '';
+
+  const div = [
+    raw.division_tier,
+    raw.tier_number,
+    raw.division_number,
+    raw.subdivision,
+    raw.tier
+  ].find(x=>/^\d+$/.test(String(x))) || '';
+
+  const label = name ? title(name) + (div ? ' ' + div : '') : 'Unranked';
+  const c = label.toLowerCase();
+
+  let cls = 'rank-unranked';
+  let icon = '?';
+
+  if(c.includes('champion')){cls='rank-champion';icon='C'}
+  else if(c.includes('grandmaster')){cls='rank-grandmaster';icon='GM'}
+  else if(c.includes('master')){cls='rank-master';icon='M'}
+  else if(c.includes('diamond')){cls='rank-diamond';icon='D'}
+  else if(c.includes('platinum')){cls='rank-platinum';icon='P'}
+  else if(c.includes('gold')){cls='rank-gold';icon='G'}
+  else if(c.includes('silver')){cls='rank-silver';icon='S'}
+  else if(c.includes('bronze')){cls='rank-bronze';icon='B'}
+
+  return {
+    label,
+    icon,
+    cls,
+    img:rankImg(raw,label)
+  };
+}
+
+function selectedProfile(){
+  return profiles.find(p=>p.slug === selected) || null;
+}
+
+function canEdit(){
+  const p = selectedProfile();
+  const email = (user?.email || '').toLowerCase();
+
+  return !!(
+    dbReady &&
+    user &&
+    p &&
+    (
+      p.auth_user_id === user.id ||
+      email.split('@')[0] === p.slug
+    )
+  );
+}
+
+function setRoute(slug){
+  selected = slug || null;
+  history.replaceState(null,'',slug ? '#' + slug : location.pathname);
+  loadData();
+}
+
+function authBox(){
+  return user
+    ? `
+      <div class="notice">Logged in as <b>${esc(user.email)}</b></div>
+      <button id="logoutBtn">Logout</button>
+    `
+    : `
+      <form id="loginForm" class="auth">
+        <input id="loginUsername" placeholder="username">
+        <input id="loginPassword" type="password" placeholder="password">
+        <button class="primary">Login</button>
+      </form>
+    `;
+}
+
+function nav(){
+  return `
+    <nav class="top surface">
+      <div class="nav">
+        <div class="brand">OW <span>Ranked</span></div>
+        <button data-home class="${!selected ? 'active' : ''}">Home</button>
+        ${profiles.map(p=>`
+          <button data-nav="${esc(p.slug)}" class="${p.slug === selected ? 'active' : ''}">
+            ${esc(p.display_name)}
+          </button>
+        `).join('')}
+      </div>
+      <div class="small">${user ? 'Logged in: ' + esc(user.email) : 'Public showcase'}</div>
+    </nav>
+  `;
+}
+
+function shell(html){
+  root.innerHTML = `<div class="app">${nav()}${html}</div>`;
+  bind();
+}
+
+function home(){
+  const cards = profiles.map(p=>{
+    const s = summarize(matches.filter(m=>m.profile_slug === p.slug));
+
+    return `
+      <div class="profile">
+        <div class="profile-top">
+          <div>
+            <div class="label">Profile</div>
+            <h2>${esc(p.display_name)}</h2>
+            <p class="sub">${esc(p.battletag || '')}</p>
+          </div>
+          <div class="avatar">${esc((p.display_name || '?')[0])}</div>
+        </div>
+
+        <div class="mini-grid">
+          <div class="mini">
+            <div class="label">Winrate</div>
+            <div class="value rate">${s.rate}</div>
+          </div>
+          <div class="mini">
+            <div class="label">Wins</div>
+            <div class="value win">${s.wins}</div>
+          </div>
+          <div class="mini">
+            <div class="label">Games</div>
+            <div class="value">${s.total}</div>
+          </div>
+        </div>
+
+        <button class="primary" data-nav="${esc(p.slug)}">Open dashboard</button>
+      </div>
+    `;
+  }).join('');
+
+  shell(`
+    <section class="hero surface">
+      <div class="hero-grid">
+        <div>
+          <div class="eyebrow">Homepage</div>
+          <h1>Choose a profile. Track the climb.</h1>
+          <p class="lead">
+            A premium ranked dashboard for daily Overwatch sessions, role performance,
+            hero swaps, rank snapshots and winrate progress.
+          </p>
+        </div>
+
+        <div class="login">
+          ${authBox()}
+          ${notice ? `<div class="notice warn">${esc(notice)}</div>` : ''}
+        </div>
+      </div>
+
+      <div class="home-grid">${cards}</div>
+    </section>
+  `);
+}
+
+function stats(t,today){
+  return `
+    <div class="stats">
+      <div class="stat">
+        <div class="label">Wins</div>
+        <div class="value win">${t.wins}</div>
+        <div class="small">Tracked sessions</div>
+      </div>
+
+      <div class="stat">
+        <div class="label">Losses</div>
+        <div class="value loss">${t.losses}</div>
+        <div class="small">Tracked sessions</div>
+      </div>
+
+      <div class="stat">
+        <div class="label">Games</div>
+        <div class="value">${t.total}</div>
+        <div class="small">Lifetime</div>
+      </div>
+
+      <div class="stat">
+        <div class="label">Winrate</div>
+        <div class="value rate">${t.rate}</div>
+        <div class="small">Overall</div>
+      </div>
+
+      <div class="stat">
+        <div class="label">Today</div>
+        <div class="value">${today.total}</div>
+        <div class="small">Daily session</div>
+      </div>
+
+      <div class="stat">
+        <div class="label">Today WR</div>
+        <div class="value rate">${today.rate}</div>
+        <div class="small">Live</div>
+      </div>
+    </div>
+  `;
+}
+
+function iconMarkup(r){
+  return r.img
+    ? `
+      <span class="rank-icon">
+        <img
+          src="${esc(r.img)}"
+          onerror="this.parentElement.className='rank-icon fallback';this.parentElement.dataset.rank='${esc(r.icon)}';this.remove()"
+        >
+      </span>
+    `
+    : `<span class="rank-icon fallback" data-rank="${esc(r.icon)}"></span>`;
+}
+
+function profilePage(){
+  const p = selectedProfile();
+  if(!p) return home();
+
+  const editable = canEdit();
+  const list = matches.filter(m=>m.profile_slug === selected);
+  const sum = summarize(list);
+  const today = summarize(list.filter(x=>x.played_on === todayISO()));
+  const roleToday = summarizeByRole(list.filter(x=>x.played_on === todayISO()));
+  const heroStats = summarizeByHero(list);
+  const rankMap = Object.fromEntries(
+    ranks.filter(r=>r.profile_slug === selected).map(r=>[r.role,r])
+  );
+  const days = byDay(list);
+
+  shell(`
+    <section class="hero surface">
+      <div class="hero-grid">
+        <div>
+          <div class="eyebrow">${esc(p.display_name)} dashboard</div>
+          <h1>Track the climb. Review every session.</h1>
+          <p class="lead">
+            ${esc(p.battletag || '')}
+            ·
+            ${
+              p.blizzard_profile_url
+                ? `<a target="_blank" href="${esc(p.blizzard_profile_url)}">Official profile</a>`
+                : 'Public profile'
+            }
+          </p>
+        </div>
+
+        <div class="login">
+          ${authBox()}
+          ${notice ? `<div class="notice warn">${esc(notice)}</div>` : ''}
+        </div>
+      </div>
+
+      ${stats(sum,today)}
+    </section>
+
+    <section class="main">
+      <div class="section surface">
+        <div class="section-head">
+          <div>
+            <h2>Competitive ranks</h2>
+            <p class="sub">Uses real Overwatch rank icons when the public API provides them.</p>
+          </div>
+          <div class="notice">${editable ? 'Session tools unlocked' : 'Showcase mode'}</div>
+        </div>
+
+        <div class="rank-grid">
+          ${Object.keys(ROLE_LABELS).map(role=>{
+            const r = rankInfo(rankMap[role]);
+            return `
+              <div class="rank ${r.cls}">
+                <div class="label">${ROLE_LABELS[role]}</div>
+                <div class="rank-line">
+                  ${iconMarkup(r)}
+                  <span class="rank-text">${esc(r.label)}</span>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+
+        <div>
+          <h3>Daily breakdown</h3>
+          <p class="sub">Role-by-role results for today.</p>
+        </div>
+
+        <div class="daily-grid">
+          ${Object.keys(ROLE_LABELS).map(role=>`
+            <div class="daily">
+              <div class="label">${ROLE_LABELS[role]}</div>
+              <strong>${roleToday[role].wins}W / ${roleToday[role].losses}L</strong>
+              <div class="small">${roleToday[role].rate}</div>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="panel" style="padding:18px">
+          <h3>Winrate over time</h3>
+          <div class="chart">
+            ${
+              days.length
+                ? days.map(d=>{
+                    const total = d.w + d.l;
+                    const rate = total ? Math.round(d.w / total * 100) : 0;
+                    return `<div class="bar" style="height:${Math.max(8,rate)}%"><span>${rate}%</span></div>`;
+                  }).join('')
+                : `<div class="empty">No graph data yet.</div>`
+            }
+          </div>
+        </div>
+      </div>
+
+      ${
+        editable
+          ? editor()
+          : `
+            <div class="section surface">
+              <h2>Session overview</h2>
+              <p class="sub">Public view for rank progress and recent results.</p>
+              <div class="empty">Login as ${esc(p.display_name)} to unlock the personal session tracker.</div>
+            </div>
+          `
+      }
+    </section>
+
+    <section class="bottom">
+      <div class="section surface">
+        <h2>Hero performance</h2>
+        <div class="list">
+          ${
+            heroStats.length
+              ? heroStats.map(h=>`
+                  <div class="entry">
+                    <div>
+                      <b>${esc(h.hero)}</b>
+                      <div class="meta">${ROLE_LABELS[h.role] || h.role} · ${h.total} games</div>
+                    </div>
+                    <div style="text-align:right">
+                      <b>${h.wins}W / ${h.losses}L</b>
+                      <div class="meta">${h.rate}</div>
+                    </div>
+                  </div>
+                `).join('')
+              : `<div class="empty">No hero stats yet.</div>`
+          }
+        </div>
+      </div>
+
+      <div class="section surface">
+        <h2>Recent entries</h2>
+        <div class="list">
+          ${
+            list.length
+              ? list.map(m=>`
+                  <div class="entry">
+                    <div>
+                      <b>${esc(m.hero)}</b>
+                      <div class="meta">${ROLE_LABELS[m.role] || m.role} · ${esc(m.played_on)}</div>
+                      ${m.note ? `<div class="meta">${esc(m.note)}</div>` : ''}
+                    </div>
+                    <div>
+                      <span class="tag ${esc(m.result)}">${String(m.result).toUpperCase()}</span>
+                      ${
+                        editable
+                          ? `<button class="danger" data-delete="${esc(m.id)}">Remove</button>`
+                          : ''
+                      }
+                    </div>
+                  </div>
+                `).join('')
+              : `<div class="empty">No entries saved yet.</div>`
+          }
+        </div>
+      </div>
+    </section>
+  `);
+}
+
+function editor(){
+  return `
+    <div class="section surface">
+      <div class="editor">
+        <h2>Personal session tracker</h2>
+        <p class="sub">
+          Count wins and losses for your ranked grind. Select every hero you played in the round.
+        </p>
+
+        <form id="matchForm">
+          <div class="form">
+            <div>
+              <div class="label">Date</div>
+              <input id="playedOn" type="date" value="${todayISO()}">
+            </div>
+
+            <div>
+              <div class="label">Role</div>
+              <select id="role">
+                <option value="damage" selected>Damage</option>
+                <option value="tank">Tank</option>
+                <option value="support">Support</option>
+                <option value="open_queue">Open Queue</option>
+              </select>
+            </div>
+
+            <div>
+              <div class="label">Result</div>
+              <select id="result">
+                <option value="win">Win</option>
+                <option value="loss">Loss</option>
+              </select>
+            </div>
+
+            <div id="heroWrap" style="grid-column:1/-1">
+              <div class="label">Heroes played this round</div>
+              ${heroChecklist('damage')}
+            </div>
+          </div>
+
+          <div style="margin-top:12px">
+            <div class="label">Session note</div>
+            <textarea id="note"></textarea>
+          </div>
+
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
+            <button class="primary">Save entry</button>
+            <button type="button" id="syncRanksBtn" class="secondary">Sync ranks</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+}
+
+function render(){
+  selected ? profilePage() : home();
+}
+
+function bind(){
+  document.querySelectorAll('[data-home]').forEach(b=>{
+    b.onclick = () => setRoute(null);
+  });
+
+  document.querySelectorAll('[data-nav]').forEach(b=>{
+    b.onclick = () => setRoute(b.dataset.nav);
+  });
+
+  qs('loginForm')?.addEventListener('submit',login);
+  qs('logoutBtn')?.addEventListener('click',logout);
+  qs('matchForm')?.addEventListener('submit',saveEntry);
+
+  document.querySelectorAll('#syncRanksBtn').forEach(b=>{
+    b.onclick = syncRanks;
+  });
+
+  qs('role')?.addEventListener('change',()=>{
+    qs('heroWrap').innerHTML =
+      '<div class="label">Heroes played this round</div>' +
+      heroChecklist(qs('role').value);
+  });
+
+  document.querySelectorAll('[data-delete]').forEach(b=>{
+    b.onclick = () => removeEntry(b.dataset.delete);
+  });
+}
+
+function loadScript(){
+  return new Promise((resolve,reject)=>{
+    const s = document.createElement('script');
+    let done = false;
+
+    const timer = setTimeout(()=>{
+      if(!done){
+        done = true;
+        reject(new Error('Supabase library timeout'));
+      }
+    },5000);
+
+    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+
+    s.onload = ()=>{
+      if(done) return;
+      done = true;
+      clearTimeout(timer);
+      resolve();
+    };
+
+    s.onerror = ()=>{
+      if(done) return;
+      done = true;
+      clearTimeout(timer);
+      reject(new Error('Supabase library failed to load'));
+    };
+
+    document.head.appendChild(s);
+  });
+}
+
+function timeout(p,ms,label){
+  return Promise.race([
+    p,
+    new Promise((_,reject)=>setTimeout(()=>reject(new Error(label + ' timeout')),ms))
+  ]);
+}
+
+async function loadData(){
+  render();
+
+  if(!client){
+    notice = 'Connecting to database...';
+    render();
+    return;
+  }
+
+  try{
+    notice = '';
+
+    try{
+      const a = await timeout(client.auth.getUser(),8000,'Auth');
+      user = a.data.user || null;
+    }catch(e){
+      user = null;
+    }
+
+    const p = await timeout(
+      client.from('profiles').select('*').order('display_name'),
+      8000,
+      'Profiles'
+    );
+
+    if(p.data?.length) profiles = p.data;
+
+    const m = await timeout(
+      client.from('matches').select('*').order('played_on',{ascending:false}).order('created_at',{ascending:false}),
+      8000,
+      'Matches'
+    );
+
+    matches = m.data || [];
+
+    const r = await timeout(
+      client.from('rank_snapshots').select('*'),
+      8000,
+      'Ranks'
+    );
+
+    ranks = r.data || [];
+
+    dbReady = true;
+    notice = '';
+    render();
+
+    if(selected) fetchLiveRanks(false);
+  }catch(e){
+    dbReady = false;
+    notice = 'Database connection issue: ' + (e.message || e);
+    render();
+  }
+}
+
+function loginEmail(v){
+  v = v.trim().toLowerCase();
+  return v.includes('@') ? v : v + '@tracker.local';
+}
+
+async function login(e){
+  e.preventDefault();
+
+  if(!client){
+    alert('Database is not connected yet.');
+    return;
+  }
+
+  const {error} = await client.auth.signInWithPassword({
+    email:loginEmail(qs('loginUsername').value),
+    password:qs('loginPassword').value
+  });
+
+  if(error){
+    alert(error.message);
+    return;
+  }
+
+  await loadData();
+}
+
+async function logout(){
+  if(client) await client.auth.signOut();
+  await loadData();
+}
+
+async function saveEntry(e){
+  e.preventDefault();
+
+  if(!client){
+    alert('Database is not connected.');
+    return;
+  }
+
+  const selectedHeroes = [...document.querySelectorAll('input[name="heroMulti"]:checked')]
+    .map(x=>x.value);
+
+  if(!selectedHeroes.length){
+    alert('Select at least one hero.');
+    return;
+  }
+
+  const payload = {
+    profile_slug:selected,
+    played_on:qs('playedOn').value || todayISO(),
+    role:qs('role').value,
+    hero:selectedHeroes.join(', '),
+    result:qs('result').value,
+    note:qs('note').value.trim() || null
+  };
+
+  const {error} = await client.from('matches').insert(payload);
+
+  if(error){
+    alert(error.message);
+    return;
+  }
+
+  await loadData();
+}
+
+async function removeEntry(id){
+  if(!client || !confirm('Remove this entry?')) return;
+  await client.from('matches').delete().eq('id',id);
+  await loadData();
+}
+
+async function overfast(profile){
+  const ids = [
+    profile.battletag_slug,
+    profile.battletag ? profile.battletag.replace('#','-') : null
+  ].filter(Boolean);
+
+  for(const id of [...new Set(ids)]){
+    try{
+      const res = await fetch(
+        'https://overfast-api.tekrop.fr/players/' + encodeURIComponent(id) + '/summary'
+      );
+
+      if(res.ok){
+        const j = await res.json();
+        if(j?.competitive) return j;
+      }
+    }catch(e){}
+  }
+
+  return null;
+}
+
+async function fetchLiveRanks(save){
+  const p = selectedProfile();
+  if(!p) return;
+
+  const j = await overfast(p);
+  if(!j) return;
+
+  const roleMap = {
+    tank:j?.competitive?.pc?.tank,
+    damage:j?.competitive?.pc?.damage,
+    support:j?.competitive?.pc?.support,
+    open_queue:j?.competitive?.pc?.open_queue
+  };
+
+  const live = [];
+
+  for(const role of Object.keys(roleMap)){
+    const value = roleMap[role];
+    if(!value) continue;
+
+    const row = {
+      profile_slug:selected,
+      role,
+      rank_label:value.rank || value.division || null,
+      division:value.division || null,
+      raw_data:value,
+      source:'overfast',
+      synced_at:new Date().toISOString()
+    };
+
+    live.push(row);
+
+    if(save && client){
+      await client
+        .from('rank_snapshots')
+        .upsert(row,{onConflict:'profile_slug,role'});
+    }
+  }
+
+  if(!save){
+    ranks = [
+      ...ranks.filter(r=>r.profile_slug !== selected || !live.some(x=>x.role === r.role)),
+      ...live
+    ];
+    render();
+  }
+}
+
+async function syncRanks(){
+  try{
+    await fetchLiveRanks(true);
+    await loadData();
+  }catch(e){
+    alert('Rank sync failed.');
+  }
+}
+
+const h = location.hash.replace('#','').trim().toLowerCase();
+selected = ['scalii','koi'].includes(h) ? h : null;
+
+render();
+
+loadScript()
+  .then(()=>{
+    client = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+    return loadData();
+  })
+  .catch(e=>{
+    notice = 'Could not load database library. Public showcase still works.';
+    render();
+  });
+
+setInterval(()=>{
+  if(user && client && selected) syncRanks();
+},600000);
 </script>
 </body>
 </html>

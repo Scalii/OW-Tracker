@@ -563,9 +563,6 @@ h3{font-size:1.05rem}
 
 a{color:#caf0ff}
 
-
-
-
 /* Date field: visible centered arrow, native calendar remains clickable */
 .date-control{
   position:relative;
@@ -1282,24 +1279,6 @@ function bind(){
       '<div class="label">Heroes played this round</div>' +
       heroChecklist(qs('role').value);
   });
-
-
-  const dateInput = qs('playedOn');
-  const dateButton = qs('dateOpenBtn');
-  const openDatePicker = () => {
-    if(!dateInput) return;
-    if(typeof dateInput.showPicker === 'function'){
-      dateInput.showPicker();
-    }else{
-      dateInput.focus();
-      dateInput.click();
-    }
-  };
-  dateButton?.addEventListener('click', openDatePicker);
-  dateInput?.addEventListener('click', () => {
-    if(typeof dateInput.showPicker === 'function') dateInput.showPicker();
-  });
-
 
   const dateWrap = document.querySelector('.date-control');
   const dateInput = qs('playedOn');

@@ -788,8 +788,8 @@ let profiles = [
   {
     slug:'koi',
     display_name:'Koi',
-    battletag:'Koi#21676',
-    battletag_slug:'Koi-21676',
+    battletag:'koi#21676',
+    battletag_slug:'koi-21676',
     blizzard_profile_url:'https://overwatch.blizzard.com/en-us/career/f951a5c7e120cdfabf%7C1a2d2e391438c6788d4210edd57843ad/'
   }
 ];
@@ -1712,16 +1712,42 @@ async function removeEntry(id){
   await loadData();
 }
 
-async function overfast(profile){
-  const ids = [
+function battletagCandidates(profile){
+  const raw = [
     profile.battletag_slug,
-    profile.battletag ? profile.battletag.replace('#','-') : null
+    profile.battletag ? profile.battletag.replace('#','-') : null,
+    profile.slug && profile.battletag ? `${profile.slug}-${String(profile.battletag).split('#')[1] || ''}` : null
   ].filter(Boolean);
 
-  for(const id of [...new Set(ids)]){
+  const out = new Set();
+
+  raw.forEach(id=>{
+    const clean = String(id).trim();
+    if(!clean) return;
+
+    out.add(clean);
+    out.add(clean.toLowerCase());
+
+    const parts = clean.split('-');
+    if(parts.length >= 2){
+      const name = parts[0];
+      const tag = parts.slice(1).join('-');
+      out.add(`${name.toLowerCase()}-${tag}`);
+      out.add(`${name.charAt(0).toUpperCase()}${name.slice(1).toLowerCase()}-${tag}`);
+    }
+  });
+
+  return [...out].filter(Boolean);
+}
+
+async function overfast(profile){
+  const ids = battletagCandidates(profile);
+
+  for(const id of ids){
     try{
       const res = await fetch(
-        'https://overfast-api.tekrop.fr/players/' + encodeURIComponent(id) + '/summary'
+        'https://overfast-api.tekrop.fr/players/' + encodeURIComponent(id) + '/summary',
+        {cache:'no-store'}
       );
 
       if(res.ok){
@@ -1741,11 +1767,13 @@ async function fetchLiveRanks(save){
   const j = await overfast(p);
   if(!j) return;
 
+  const comp = j?.competitive || {};
+  const pc = comp.pc || comp;
   const roleMap = {
-    tank:j?.competitive?.pc?.tank,
-    damage:j?.competitive?.pc?.damage,
-    support:j?.competitive?.pc?.support,
-    open_queue:j?.competitive?.pc?.open_queue
+    tank:pc?.tank || pc?.role?.tank || comp?.tank,
+    damage:pc?.damage || pc?.dps || pc?.role?.damage || comp?.damage || comp?.dps,
+    support:pc?.support || pc?.role?.support || comp?.support,
+    open_queue:pc?.open_queue || pc?.openQueue || pc?.open || comp?.open_queue || comp?.openQueue
   };
 
   const live = [];

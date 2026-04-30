@@ -7,7 +7,6 @@
 
 <style>
 :root{
-  --bg:#050914;
   --line:rgba(255,255,255,.11);
   --line2:rgba(255,255,255,.2);
   --text:#f8fbff;
@@ -216,9 +215,28 @@ h3{font-size:1.05rem}
   background:rgba(5,9,18,.5);
   display:grid;
   gap:12px;
+  align-self:start;
+  align-content:start;
 }
 
-.auth{display:grid;gap:10px}
+.login > button,
+.auth button{
+  width:fit-content;
+  min-width:110px;
+  min-height:0;
+  padding:11px 18px;
+  justify-self:start;
+}
+
+.auth{
+  display:grid;
+  gap:10px;
+  align-items:start;
+}
+
+.auth input{
+  max-width:360px;
+}
 
 .notice{
   padding:12px 14px;
@@ -226,6 +244,7 @@ h3{font-size:1.05rem}
   border:1px solid rgba(98,216,255,.24);
   background:rgba(98,216,255,.1);
   color:#dff8ff;
+  min-height:0;
 }
 
 .warn{
@@ -544,6 +563,46 @@ h3{font-size:1.05rem}
 
 a{color:#caf0ff}
 
+
+
+
+/* Date field: visible centered arrow, native calendar remains clickable */
+.date-control{
+  position:relative;
+  width:100%;
+}
+
+.date-control input[type="date"]{
+  padding-right:58px;
+  color-scheme:dark;
+  cursor:pointer;
+}
+
+.date-control input[type="date"]::-webkit-calendar-picker-indicator{
+  position:absolute;
+  right:14px;
+  top:50%;
+  transform:translateY(-50%);
+  width:22px;
+  height:22px;
+  cursor:pointer;
+  opacity:1;
+  filter:invert(1) brightness(1.35);
+}
+
+.date-control:after{
+  content:"⌄";
+  position:absolute;
+  right:42px;
+  top:50%;
+  transform:translateY(-56%);
+  color:#dff8ff;
+  pointer-events:none;
+  font-size:1.05rem;
+  line-height:1;
+  opacity:.92;
+}
+
 @media(max-width:1100px){
   .hero-grid,.main,.bottom{grid-template-columns:1fr}
   .stats{grid-template-columns:repeat(2,1fr)}
@@ -558,6 +617,9 @@ a{color:#caf0ff}
   .stats{grid-template-columns:1fr}
   .top{flex-direction:column;align-items:flex-start}
   .entry{align-items:flex-start;flex-direction:column}
+  .login > button,
+  .auth button{width:100%}
+  .auth input{max-width:none}
 }
 </style>
 </head>
@@ -577,9 +639,9 @@ const ROLE_LABELS = {
 };
 
 const HEROES_BY_ROLE = {
-  tank:['D.Va','Doomfist','Hazard','Junker Queen','Mauga','Orisa','Ramattra','Reinhardt','Roadhog','Sigma','Winston','Wrecking Ball','Zarya'],
-  damage:['Ashe','Bastion','Cassidy','Echo','Freja','Genji','Hanzo','Junkrat','Mei','Pharah','Reaper','Sojourn','Soldier: 76','Sombra','Symmetra','Torbjörn','Tracer','Venture','Widowmaker'],
-  support:['Ana','Baptiste','Brigitte','Illari','Juno','Kiriko','Lifeweaver','Lúcio','Mercy','Moira','Zenyatta']
+  tank:['D.Va','Domina','Doomfist','Hazard','Junker Queen','Mauga','Orisa','Ramattra','Reinhardt','Roadhog','Sigma','Winston','Wrecking Ball','Zarya'],
+  damage:['Anran','Ashe','Bastion','Cassidy','Echo','Emre','Freja','Genji','Hanzo','Junkrat','Mei','Pharah','Reaper','Sierra','Sojourn','Soldier: 76','Sombra','Symmetra','Torbjörn','Tracer','Vendetta','Venture','Widowmaker'],
+  support:['Ana','Baptiste','Brigitte','Illari','Jetpack Cat','Juno','Kiriko','Lifeweaver','Lúcio','Mercy','Mizuki','Moira','Wuyang','Zenyatta']
 };
 
 const ALL_HEROES = [
@@ -706,19 +768,6 @@ function byDay(list){
   return [...map.values()].slice(-10);
 }
 
-/*
-  This is the important rank-icon fix.
-
-  The old version grabbed the first image URL it found.
-  That could accidentally be a role icon: tank, damage, support.
-
-  This version:
-  - scans every image URL in the API data
-  - rejects role icons
-  - prefers URLs that match the actual rank name
-  - then falls back to rank/tier/division-looking URLs
-  - then falls back to the custom emblem
-*/
 function urls(obj,depth=0,out=[]){
   if(!obj || depth > 6) return out;
 
@@ -746,7 +795,6 @@ function rankImg(raw,label){
   ];
 
   const term = terms.find(t=>label.toLowerCase().includes(t));
-
   const bad = /(tank|damage|support|role|roles|career-role|competitive-role|icon-portrait|hero)/i;
 
   return (
@@ -1164,7 +1212,9 @@ function editor(){
           <div class="form">
             <div>
               <div class="label">Date</div>
-              <input id="playedOn" type="date" value="${todayISO()}">
+              <div class="date-control">
+                <input id="playedOn" type="date" value="${todayISO()}">
+              </div>
             </div>
 
             <div>
@@ -1232,6 +1282,42 @@ function bind(){
       '<div class="label">Heroes played this round</div>' +
       heroChecklist(qs('role').value);
   });
+
+
+  const dateInput = qs('playedOn');
+  const dateButton = qs('dateOpenBtn');
+  const openDatePicker = () => {
+    if(!dateInput) return;
+    if(typeof dateInput.showPicker === 'function'){
+      dateInput.showPicker();
+    }else{
+      dateInput.focus();
+      dateInput.click();
+    }
+  };
+  dateButton?.addEventListener('click', openDatePicker);
+  dateInput?.addEventListener('click', () => {
+    if(typeof dateInput.showPicker === 'function') dateInput.showPicker();
+  });
+
+
+  const dateWrap = document.querySelector('.date-control');
+  const dateInput = qs('playedOn');
+  const openDatePicker = () => {
+    if(!dateInput) return;
+    try{
+      if(typeof dateInput.showPicker === 'function'){
+        dateInput.showPicker();
+      }else{
+        dateInput.focus();
+        dateInput.click();
+      }
+    }catch(e){
+      dateInput.focus();
+      dateInput.click();
+    }
+  };
+  dateWrap?.addEventListener('click', openDatePicker);
 
   document.querySelectorAll('[data-delete]').forEach(b=>{
     b.onclick = () => removeEntry(b.dataset.delete);
